@@ -6,14 +6,14 @@ def encode_length(length):
 def _encode_length(length):
     x = [
         (0, 0x7F, 0x0),
-        (0x80, 0x3FFF, 0x8000),
-        (0x4000, 0x1FFFFF, 0xC00000),
-        (0x200000, 0xFFFFFFF, 0xE0000000),
-        (0x10000000, 0xFFFFFFFF, 0xF000000000),
+        (0x80, 0x3FFF, 0x80),
+        (0x4000, 0x1FFFFF, 0xC0),
+        (0x200000, 0xFFFFFFF, 0xE0),
+        (0x10000000, 0xFFFFFFFF, 0xF0),
     ]
     for bytes, (min_value, max_value, mask) in enumerate(x):
         if min_value <= length <= max_value:
-            return length | mask, bytes + 1
+            return length | (mask << 8 * bytes), bytes + 1
     raise ValueError("String to long.")
 
 
