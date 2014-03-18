@@ -1,3 +1,5 @@
+import socket
+
 LENGTH_MATRIX = [
     (0x80, 0x0),
     (0x40, 0x80),
@@ -7,6 +9,34 @@ LENGTH_MATRIX = [
 ]
 
 OVER_MAX_LENGTH_MASK = 0xF8
+
+class RouterOsApiError(Exception):
+    pass
+
+
+class Connection(object):
+    def __init__(self, socket):
+        self.socket = socket
+
+    def send_sentence(self, words):
+        for word in words + [b'']:
+            full_word = encode_length(len(word)) + word
+            self.socket.sendall(full_word)
+
+    def receive_sentence(self):
+        try:
+            return list(iter(self.receive_word, b''))
+        except socket.error as e:
+            RouterOsApiError(str(e))
+
+    def receive_word(self):
+        result = b''
+        length = decode_length(self.socket.recv)
+        while len(result) != length:
+            received = self.socket.recv(length - len(result))
+            assert received
+            result += received
+        return result
 
 
 def encode_length(length):
@@ -35,8 +65,8 @@ def to_bytes(number, length):
         return ''.join(result)
 
 
-def decode_length(data):
-    first = ord(data.read(1))
+def decode_length(read):
+    first = ord(read(1))
     masks = tuple(zip(*LENGTH_MATRIX))[1]
     mask_with_next = zip(masks, masks[1:] + (OVER_MAX_LENGTH_MASK,))
     for bytes, (mask, next_mask) in enumerate(mask_with_next):
@@ -47,5 +77,5 @@ def decode_length(data):
         raise ValueError
     for _ in range(bytes):
         result <<= 8
-        result += ord(data.read(1))
+        result += ord(read(1))
     return result
