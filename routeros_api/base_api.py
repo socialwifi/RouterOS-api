@@ -46,7 +46,7 @@ def encode_length(length):
 
 def _encode_length(length):
     if length < 0:
-        raise TypeError("Negative length.")
+        raise ValueError("Negative length.")
 
     for bytes, (max_value, mask) in enumerate(LENGTH_MATRIX):
         offset = 8 * bytes
