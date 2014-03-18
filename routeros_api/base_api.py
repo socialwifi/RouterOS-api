@@ -19,9 +19,12 @@ class Connection(object):
         self.socket = socket
 
     def send_sentence(self, words):
-        for word in words + [b'']:
-            full_word = encode_length(len(word)) + word
-            self.socket.sendall(full_word)
+        try:
+            for word in words + [b'']:
+                full_word = encode_length(len(word)) + word
+                self.socket.sendall(full_word)
+        except socket.error as e:
+            RouterOsApiError(str(e))
 
     def receive_sentence(self):
         try:
