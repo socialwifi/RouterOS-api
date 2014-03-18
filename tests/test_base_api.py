@@ -1,6 +1,11 @@
 from unittest import TestCase
 
 try:
+    from unitetest import mock
+except ImportError:
+    import mock
+
+try:
     from StringIO import StringIO as BytesIO
 except ImportError:
     import io
@@ -52,23 +57,23 @@ class TestEncodeLength(TestCase):
 class TestDecodeLength(TestCase):
     def test_zero(self):
         data = BytesIO(b"\x00")
-        self.assertEqual(0, base_api.decode_length(data))
+        self.assertEqual(0, base_api.decode_length(data.read))
 
     def test_over_0x80(self):
         data = BytesIO(b"\x81\x2c")
-        self.assertEqual(300, base_api.decode_length(data))
+        self.assertEqual(300, base_api.decode_length(data.read))
 
     def test_over_0x3FFF(self):
         data = BytesIO(b"\xc0\x42\x68")
-        self.assertEqual(17000, base_api.decode_length(data))
+        self.assertEqual(17000, base_api.decode_length(data.read))
 
     def test_0x10000000(self):
         data = BytesIO(b"\xF0\x10\x00\x00\x00")
-        self.assertEqual(0x10000000, base_api.decode_length(data))
+        self.assertEqual(0x10000000, base_api.decode_length(data.read))
 
     def test_wrong_prefix(self):
         data = BytesIO(b"\xF8")
-        self.assertRaises(ValueError, base_api.decode_length, data)
+        self.assertRaises(ValueError, base_api.decode_length, data.read)
 
 
 class TestToBytes(TestCase):
@@ -81,3 +86,31 @@ class TestToBytes(TestCase):
         result = base_api.to_bytes(0x1112, 2)
         expected = b'\x11\x12'
         self.assertEqual(expected, result)
+
+
+class TestConnection(TestCase):
+    def test_sending(self, ):
+        socket = mock.Mock()
+        connection = base_api.Connection(socket)
+        connection.send_sentence([b'foo', b'bar'])
+        expected = [
+            mock.call(b'\x03foo'),
+            mock.call(b'\x03bar'),
+            mock.call(b'\x00')
+        ]
+        self.assertEqual(expected, socket.sendall.mock_calls)
+
+    def test_receiving(self):
+        socket = mock.Mock()
+        socket.recv.side_effect = [b'\x03', b'foo', b'\x03', b'bar', b'\x00']
+        connection = base_api.Connection(socket)
+        result = connection.receive_sentence()
+        self.assertEqual([b'foo', b'bar'], result)
+        expected = [
+            mock.call(1),
+            mock.call(3),
+            mock.call(1),
+            mock.call(3),
+            mock.call(1),
+        ]
+        self.assertEqual(expected, socket.recv.mock_calls)
