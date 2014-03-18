@@ -33,8 +33,15 @@ class TestEncodeLength(TestCase):
         expected = (expected_number, expected_length)
         self.assertEqual(expected, result)
 
+    def test_0x10000000(self):
+        result = base_api._encode_length(0x10000000)
+        expected_number = 0xF010000000
+        expected_length = 5
+        expected = (expected_number, expected_length)
+        self.assertEqual(expected, result)
+
     def test_to_big(self):
-        self.assertRaises(ValueError, base_api._encode_length, 2 ** 128)
+        self.assertRaises(ValueError, base_api._encode_length, 0x100000000)
 
 
 class TestToBytes(TestCase):
