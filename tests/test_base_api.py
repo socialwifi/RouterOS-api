@@ -1,5 +1,10 @@
 from unittest import TestCase
 
+try:
+    from StringIO import StringIO as BytesIO
+except ImportError:
+    import io
+    BytesIO = io.BytesIO
 
 from routeros_api import base_api
 
@@ -42,6 +47,28 @@ class TestEncodeLength(TestCase):
 
     def test_to_big(self):
         self.assertRaises(ValueError, base_api._encode_length, 0x100000000)
+
+
+class TestDecodeLength(TestCase):
+    def test_zero(self):
+        data = BytesIO(b"\x00")
+        self.assertEqual(0, base_api.decode_length(data))
+
+    def test_over_0x80(self):
+        data = BytesIO(b"\x81\x2c")
+        self.assertEqual(300, base_api.decode_length(data))
+
+    def test_over_0x3FFF(self):
+        data = BytesIO(b"\xc0\x42\x68")
+        self.assertEqual(17000, base_api.decode_length(data))
+
+    def test_0x10000000(self):
+        data = BytesIO(b"\xF0\x10\x00\x00\x00")
+        self.assertEqual(0x10000000, base_api.decode_length(data))
+
+    def test_wrong_prefix(self):
+        data = BytesIO(b"\xF8")
+        self.assertRaises(ValueError, base_api.decode_length, data)
 
 
 class TestToBytes(TestCase):
