@@ -7,5 +7,6 @@ setup(version='0',
       author='Tomasz Wysocki',
       author_email='tomasz@pozytywnie.pl',
       packages=find_packages(),
-      test_suite="tests",                          
+      test_suite="tests",
+      licence="MIT",
 )
