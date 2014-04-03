@@ -68,7 +68,7 @@ def to_bytes(number, length):
         result = []
         for byte in reversed(range(length)):
             result.append(chr((number >> (8 * byte)) & 0xff))
-        return ''.join(result)
+        return b''.join(result)
 
 
 def decode_length(read):
