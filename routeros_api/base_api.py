@@ -33,13 +33,16 @@ class Connection(object):
             RouterOsApiError(str(e))
 
     def receive_word(self):
-        result = b''
-        length = decode_length(self.socket.recv)
-        while len(result) != length:
-            received = self.socket.recv(length - len(result))
+        result = []
+        result_length = 0
+        expected_length = decode_length(self.socket.recv)
+        while result_length != expected_length:
+            received = self.socket.recv(expected_length - result_length)
+            result.append(received)
+            result_length += len(received)
             assert received
-            result += received
-        return result
+            assert result_length <= expected_length
+        return b''.join(result)
 
 
 def encode_length(length):
