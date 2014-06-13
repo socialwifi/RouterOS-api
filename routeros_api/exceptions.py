@@ -6,3 +6,6 @@ class RouterOsApiConnectionError(RouterOsApiError):
 
 class FatalRouterOsApiError(RouterOsApiError):
     pass
+
+class RouterOsApiParsingError(RouterOsApiError):
+    pass
