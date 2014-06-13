@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from routeros_api import exceptions
+
 try:
     from unitetest import mock
 except ImportError:
@@ -51,7 +53,8 @@ class TestEncodeLength(TestCase):
         self.assertEqual(expected, result)
 
     def test_to_big(self):
-        self.assertRaises(ValueError, base_api._encode_length, 0x100000000)
+        self.assertRaises(exceptions.FatalRouterOsApiError,
+                          base_api._encode_length, 0x100000000)
 
 
 class TestDecodeLength(TestCase):
@@ -73,7 +76,8 @@ class TestDecodeLength(TestCase):
 
     def test_wrong_prefix(self):
         data = BytesIO(b"\xF8")
-        self.assertRaises(ValueError, base_api.decode_length, data.read)
+        self.assertRaises(exceptions.FatalRouterOsApiError,
+                          base_api.decode_length, data.read)
 
 
 class TestToBytes(TestCase):
