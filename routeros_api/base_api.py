@@ -24,13 +24,13 @@ class Connection(object):
                 full_word = encode_length(len(word)) + word
                 self.socket.sendall(full_word)
         except socket.error as e:
-            exceptions.RouterOsApiConnectionError(str(e))
+            raise exceptions.RouterOsApiConnectionError(str(e))
 
     def receive_sentence(self):
         try:
             return list(iter(self.receive_word, b''))
         except socket.error as e:
-            exceptions.RouterOsApiConnectionError(str(e))
+            raise exceptions.RouterOsApiConnectionError(str(e))
 
     def receive_word(self):
         result = []
