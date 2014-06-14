@@ -1,13 +1,11 @@
+from routeros_api import utils
+
 class BasicQuery(object):
     operator = None
 
     def __init__(self, key, value):
-        if type(key) is str:
-            key = key.encode()
-        if type(value) is str:
-            value = value.encode()
-        self.key = key
-        self.value = value
+        self.key = utils.get_bytes(key)
+        self.value = utils.get_bytes(value)
 
     def get_api_format(self):
         return [self.operator + self.key + b'=' + self.value]
@@ -27,9 +25,7 @@ class IsGreaterQuery(BasicQuery):
 
 class HasValueQuery(object):
     def __init__(self, key):
-        if type(key) is str:
-            key = key.encode()
-        self.key = key
+        self.key = utils.get_bytes(key)
 
     def get_api_format(self):
         return [b"?" + self.key]

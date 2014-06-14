@@ -1,6 +1,7 @@
 import re
 
 from routeros_api import exceptions
+from routeros_api import utils
 from routeros_api import query
 
 
@@ -43,8 +44,8 @@ class ResponseSentence(object):
 
 class CommandSentence(object):
     def __init__(self, path, command, tag=None):
-        self.path = path
-        self.command = command
+        self.path = utils.get_bytes(path)
+        self.command = utils.get_bytes(command)
         self.attributes = {}
         self.api_attributes = {}
         self.queries = set()
@@ -61,7 +62,7 @@ class CommandSentence(object):
         return formated
 
     def set(self, key, value):
-        self.attributes[key] = value
+        self.attributes[utils.get_bytes(key)] = utils.get_bytes(value)
 
     def filter(self, *args, **kwargs):
         for arg in args:

@@ -93,3 +93,16 @@ class ResponsePromise(object):
 
     def get(self):
         return self.communicator.receive_asynchronous(self.tag)
+
+
+class UnicodeApiCommunicator(ApiCommunicator):
+    def receive_asynchronous(self, tag):
+        original = super(UnicodeApiCommunicator, self).receive_asynchronous(
+            tag)
+        response = []
+        for original_row in original:
+            row = {}
+            response.append(row)
+            for key, value in original_row.items():
+                row[key.decode()] = value.decode()
+        return response
