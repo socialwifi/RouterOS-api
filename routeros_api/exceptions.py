@@ -9,3 +9,9 @@ class FatalRouterOsApiError(RouterOsApiError):
 
 class RouterOsApiParsingError(RouterOsApiError):
     pass
+
+class RouterOsApiCommunicationError(RouterOsApiError):
+    pass
+
+class RouterOsApiConnectionClosedError(RouterOsApiError):
+    pass
