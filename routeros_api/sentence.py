@@ -20,7 +20,7 @@ class ResponseSentence(object):
     def parse(cls, sentence):
         response_match = response_re.match(sentence[0])
         if response_match:
-            response = cls(response_match.group(1))
+            response = cls(response_match.group(1).decode())
             response.parse_attributes(sentence[1:])
         else:
             raise exceptions.RouterOsApiParsingError("Malformed sentence %s",
@@ -34,12 +34,20 @@ class ResponseSentence(object):
             tag_match = tag_re.match(serialized)
             if attribute_match:
                 key, value = attribute_match.groups()
-                self.attributes[key] = value
+                self.attributes[key.decode()] = self.process_value(value)
             elif tag_match:
-                self.tag = tag_match.group(1)
+                self.tag = tag_match.group(1).decode()
             else:
                 raise exceptions.RouterOsApiParsingError(
                     "Malformed attribute %s", serialized)
+
+    def process_value(self, value):
+        return value
+
+
+class AsciiResponseSentence(ResponseSentence):
+    def process_value(self, value):
+        return value.decode()
 
 
 class CommandSentence(object):
@@ -49,7 +57,7 @@ class CommandSentence(object):
         self.attributes = {}
         self.api_attributes = {}
         self.queries = set()
-        self.tag = tag
+        self.tag = utils.get_bytes(tag)
 
     def get_api_format(self):
         formated = [self.path + self.command]
