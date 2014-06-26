@@ -9,14 +9,17 @@ def connect(host, username='admin', password='', port=8728):
     socket = api_socket.get_socket(host, port)
     base = base_api.Connection(socket)
     communicator = api_communicator.ExceptionAwareApiCommunicator(base)
-    api = RouterOsApi(communicator)
+    close_handler = api_socket.CloseConnectionExceptionHandler(socket)
+    communicator.add_handler(close_handler)
+    api = RouterOsApi(communicator, socket)
     api.login(username, password)
     return api
 
 
 class RouterOsApi(object):
-    def __init__(self, communicator):
+    def __init__(self, communicator, socket):
         self.communicator = communicator
+        self.socket = socket
 
     def login(self, login, password):
         response = self.communicator.call('/', 'login', include_done=True)
@@ -34,6 +37,9 @@ class RouterOsApi(object):
 
     def get_binary_resource(self, path):
         return RouterOsResource(self.communicator, path, binary=True)
+
+    def close(self):
+        self.socket.close()
 
 
 class RouterOsResource(object):

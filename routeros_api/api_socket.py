@@ -1,4 +1,6 @@
 import socket
+from routeros_api import exceptions
+
 
 def get_socket(hostname, port):
     api_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,3 +21,12 @@ def set_keepalive(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, after_idle_sec)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
+
+
+class CloseConnectionExceptionHandler:
+    def __init__(self, socket):
+        self.socket = socket
+
+    def handle(self, exception):
+        if isinstance(exception, exceptions.FatalRouterOsApiError):
+            self.socket.close()

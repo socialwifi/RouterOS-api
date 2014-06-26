@@ -25,6 +25,9 @@ class ExceptionAwareApiCommunicator(api_communicator.ApiCommunicator):
             self.exception_handler.handle(e)
             raise
 
+    def add_handler(self, handler):
+        self.exception_handler.add_handler(handler)
+
 
 class ExceptionAwareResponsePromiseDecorator(object):
     def __init__(self, decorated, exception_handler):
