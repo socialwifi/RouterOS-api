@@ -45,11 +45,6 @@ class ResponseSentence(object):
         return value
 
 
-class AsciiResponseSentence(ResponseSentence):
-    def process_value(self, value):
-        return value.decode()
-
-
 class CommandSentence(object):
     def __init__(self, path, command, tag=None):
         self.path = utils.get_bytes(path)

@@ -1,5 +1,3 @@
-import collections
-
 from routeros_api import exceptions
 from routeros_api import sentence
 from routeros_api import query
@@ -9,22 +7,28 @@ class ApiCommunicator(object):
     def __init__(self, base):
         self.base = base
         self.tag = 0
-        self.response_buffor = collections.defaultdict(AsynchronousResponse)
+        self.response_buffor = {}
 
     def call(self, path, command, arguments=None, queries=None,
              additional_queries=(), binary=False, include_done=False):
-        self.send_command(path, command, arguments, queries,
-                          additional_queries=additional_queries)
-        return self._get_receiver(binary, include_done).receive_synchronous()
+        command = self.get_command(path, command, arguments, queries,
+                                   additional_queries=additional_queries)
+        self.send_command(command)
+        self.response_buffor['synchronous'] = AsynchronousResponse(
+            command, binary, include_done)
+        return self.receive_synchronous()
 
     def call_async(self, path, command, arguments=None, queries=None,
                    additional_queries=(), binary=False, include_done=False):
         tag = self._get_next_tag()
-        self.send_command(path, command, arguments, queries, tag=tag,
-                          additional_queries=additional_queries)
-        return ResponsePromise(self._get_receiver(binary, include_done), tag)
+        command = self.get_command(path, command, arguments, queries, tag=tag,
+                                   additional_queries=additional_queries)
+        self.send_command(command)
+        self.response_buffor[tag] = AsynchronousResponse(
+            command, binary, include_done)
+        return ResponsePromise(self, tag)
 
-    def send_command(self, path, command, arguments=None, queries=None,
+    def get_command(self, path, command, arguments=None, queries=None,
                      tag=None, additional_queries=()):
         arguments = arguments or {}
         queries = queries or {}
@@ -35,45 +39,27 @@ class ApiCommunicator(object):
             command.filter(query.IsEqualQuery(key, value))
         for additional_query in additional_queries:
             command.filter(additional_query)
+        return command
+
+    def send_command(self, command):
         self.base.send_sentence(command.get_api_format())
 
     def _get_next_tag(self):
         self.tag += 1
         return str(self.tag)
 
-    def _get_receiver(self, binary, include_done):
-        if binary:
-            sentence_class = sentence.ResponseSentence
-        else:
-            sentence_class = sentence.AsciiResponseSentence
-
-        if include_done:
-            save_responses = ['re', 'done']
-        else:
-            save_responses = ['re']
-        return ApiReceiver(self.base, self.response_buffor, sentence_class,
-                           save_responses)
-
-
-class ApiReceiver(object):
-    def __init__(self, base, response_buffor, sentence_class, save_responses):
-        self.base = base
-        self.response_buffor = response_buffor
-        self.sentence_class = sentence_class
-        self.save_responses = save_responses
-
     def receive_single_response(self):
         serialized = []
         while not serialized:
             serialized = self.base.receive_sentence()
-        response = self.sentence_class.parse(serialized)
+        response = sentence.ResponseSentence.parse(serialized)
         return response
 
     def process_single_response(self):
         response = self.receive_single_response()
         tag = response.tag if response.tag is not None else 'synchronous'
         asynchronous_response = self.response_buffor[tag]
-        if response.type in self.save_responses:
+        if response.type in asynchronous_response.get_meaningfull_responses():
             attributes = response.attributes
             asynchronous_response.attributes.append(attributes)
         if response.type == 'done':
@@ -94,16 +80,34 @@ class ApiReceiver(object):
             self.process_single_response()
         del(self.response_buffor[tag])
         if response.error:
-            raise exceptions.RouterOsApiCommunicationError(response.error)
+            raise exceptions.RouterOsApiCommunicationError(
+                response.error.decode())
         else:
+            if not response.binary:
+                response.decode()
             return response.attributes
 
 
 class AsynchronousResponse(object):
-    def __init__(self):
+    def __init__(self, command, binary, include_done):
         self.attributes = []
         self.done = False
         self.error = None
+        self.command = command
+        self.binary = binary
+        self.include_done = include_done
+
+    def decode(self):
+        for attribute in self.attributes:
+            for key in attribute:
+                attribute[key] = attribute[key].decode()
+
+    def get_meaningfull_responses(self):
+        if self.include_done:
+            save_responses = ['re', 'done']
+        else:
+            save_responses = ['re']
+        return save_responses
 
 
 class ResponsePromise(object):
