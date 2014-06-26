@@ -13,9 +13,8 @@ def connect(host, username='admin', password='', port=8728):
     return RouterOsApi(communicator)
 
 def login(communicator, login, password):
-    communicator.send_command('/', 'login')
-    response = communicator.receive_single_response()
-    token = binascii.unhexlify(response.attributes['ret'])
+    response = communicator.call('/', 'login', include_done=True)
+    token = binascii.unhexlify(response[0]['ret'])
     hasher = hashlib.md5()
     hasher.update(b'\x00')
     hasher.update(password.encode())
