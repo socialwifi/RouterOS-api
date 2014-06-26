@@ -76,3 +76,6 @@ class CommandSentence(object):
 
         for key, value in kwargs.items():
             self.queries.add(query.IsEqualQuery(key, value))
+
+    def __str__(self):
+        return ' '.join(self.get_api_format())
