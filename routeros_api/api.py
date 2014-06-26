@@ -9,28 +9,32 @@ def connect(host, username='admin', password='', port=8728):
     socket = api_socket.get_socket(host, port)
     base = base_api.Connection(socket)
     communicator = api_communicator.ExceptionAwareApiCommunicator(base)
-    login(communicator, username, password)
-    return RouterOsApi(communicator)
+    api = RouterOsApi(communicator)
+    api.login(username, password)
+    return api
 
-def login(communicator, login, password):
-    response = communicator.call('/', 'login', include_done=True)
-    token = binascii.unhexlify(response[0]['ret'])
-    hasher = hashlib.md5()
-    hasher.update(b'\x00')
-    hasher.update(password.encode())
-    hasher.update(token)
-    hashed = b'00' + hasher.hexdigest().encode('ascii')
-    communicator.call('/', 'login', {'name': login, 'response': hashed})
 
 class RouterOsApi(object):
     def __init__(self, communicator):
         self.communicator = communicator
+
+    def login(self, login, password):
+        response = self.communicator.call('/', 'login', include_done=True)
+        token = binascii.unhexlify(response[0]['ret'])
+        hasher = hashlib.md5()
+        hasher.update(b'\x00')
+        hasher.update(password.encode())
+        hasher.update(token)
+        hashed = b'00' + hasher.hexdigest().encode('ascii')
+        self.communicator.call('/', 'login',
+                               {'name': login, 'response': hashed})
 
     def get_resource(self, path):
         return RouterOsResource(self.communicator, path)
 
     def get_binary_resource(self, path):
         return RouterOsResource(self.communicator, path, binary=True)
+
 
 class RouterOsResource(object):
     def __init__(self, communicator, path, binary=False):
