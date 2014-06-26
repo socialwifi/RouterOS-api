@@ -78,4 +78,4 @@ class CommandSentence(object):
             self.queries.add(query.IsEqualQuery(key, value))
 
     def __str__(self):
-        return ' '.join(self.get_api_format())
+        return str(b' '.join(self.get_api_format()))
