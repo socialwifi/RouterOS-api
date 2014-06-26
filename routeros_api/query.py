@@ -53,5 +53,8 @@ class AndQuery(OperatorQuery):
     operator = b'&'
 
 
-class NotQuery(OperatorQuery):
-    operator = b'!'
+class NandQuery(AndQuery):
+    def get_api_format(self):
+        formated = super(NandQuery, self).get_api_format()
+        formated[-1] += b'!'
+        return formated
