@@ -68,8 +68,8 @@ class ApiCommunicator(object):
             asynchronous_response.error = response.attributes['message']
         elif response.type == 'fatal':
             del(self.response_buffor[tag])
-            message = "Fatal error executing command {}".format(
-                asynchronous_response.command)
+            message = "Fatal error executing command {command}".format(
+                command=asynchronous_response.command)
             raise exceptions.RouterOsApiConnectionClosedError(message)
 
     def receive_synchronous(self):
@@ -81,8 +81,8 @@ class ApiCommunicator(object):
             self.process_single_response()
         del(self.response_buffor[tag])
         if response.error:
-            message = "Error \"{}\" executing command {}".format(
-                response.error.decode(), response.command)
+            message = "Error \"{error}\" executing command {command}".format(
+                error=response.error.decode(), command=response.command)
             raise exceptions.RouterOsApiCommunicationError(message)
         else:
             if not response.binary:
