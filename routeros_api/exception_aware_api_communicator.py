@@ -7,39 +7,22 @@ class ExceptionAwareApiCommunicator(api_communicator.ApiCommunicator):
         super(ExceptionAwareApiCommunicator, self).__init__(base)
         self.exception_handler = ExceptionMultiHandler()
 
-    def call(self, *args, **kwargs):
+    def send_command(self, command):
         try:
-            return super(ExceptionAwareApiCommunicator, self).call(
-                *args, **kwargs)
+            super(ExceptionAwareApiCommunicator, self).send_command(command)
         except exceptions.RouterOsApiError as e:
             self.exception_handler.handle(e)
             raise
 
-    def call_async(self, *args, **kwargs):
+    def receive(self, tag):
         try:
-            promise = super(ExceptionAwareApiCommunicator, self).call_async(
-                *args, **kwargs)
-            return ExceptionAwareResponsePromiseDecorator(
-                promise, self.exception_handler)
+            return super(ExceptionAwareApiCommunicator, self).receive(tag)
         except exceptions.RouterOsApiError as e:
             self.exception_handler.handle(e)
             raise
 
     def add_handler(self, handler):
         self.exception_handler.add_handler(handler)
-
-
-class ExceptionAwareResponsePromiseDecorator(object):
-    def __init__(self, decorated, exception_handler):
-        self.decorated = decorated
-        self.exception_handler = exception_handler
-
-    def get(self):
-        try:
-            return self.decorated.get()
-        except exceptions.RouterOsApiError as e:
-            self.exception_handler.handle(e)
-            raise
 
 
 class ExceptionMultiHandler(object):
