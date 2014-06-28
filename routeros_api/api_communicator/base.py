@@ -9,7 +9,7 @@ class ApiCommunicatorBase(object):
         self.tag = 0
         self.response_buffor = {}
 
-    def call_async(self, path, command, arguments=None, queries=None,
+    def send(self, path, command, arguments=None, queries=None,
                    additional_queries=(), include_done=False):
         tag = self._get_next_tag()
         command = self.get_command(path, command, arguments, queries, tag=tag,
@@ -17,7 +17,7 @@ class ApiCommunicatorBase(object):
         self.send_command(command)
         self.response_buffor[tag] = AsynchronousResponse(
             command, include_done)
-        return ResponsePromise(self, tag)
+        return tag
 
     def get_command(self, path, command, arguments=None, queries=None,
                      tag=None, additional_queries=()):
@@ -92,12 +92,3 @@ class AsynchronousResponse(object):
         else:
             save_responses = [b're']
         return save_responses
-
-
-class ResponsePromise(object):
-    def __init__(self, receiver, tag):
-        self.receiver = receiver
-        self.tag = tag
-
-    def get(self):
-        return self.receiver.receive(self.tag)
