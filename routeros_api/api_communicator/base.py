@@ -37,7 +37,7 @@ class ApiCommunicatorBase(object):
 
     def _get_next_tag(self):
         self.tag += 1
-        return str(self.tag)
+        return str(self.tag).encode()
 
     def receive_single_response(self):
         serialized = []

@@ -16,7 +16,7 @@ class EncodingApiCommunicator(object):
 
     def encode_dictionary(self, dictionary, binary_values):
         encoded_arguments = {}
-        for key, value in dictionary:
+        for key, value in dictionary.items():
             if binary_values:
                 encoded_arguments[key.encode()] = value
             else:
@@ -39,7 +39,7 @@ class EncodedPromiseDecorator(object):
 
     def decode_dictionary(self, dictionary):
         decoded_dictionary = {}
-        for key, value in dictionary:
+        for key, value in dictionary.items():
             if self.binary_values:
                 decoded_dictionary[key.decode()] = value
             else:
