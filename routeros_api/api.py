@@ -1,6 +1,6 @@
 import hashlib
 import binascii
-from routeros_api import exception_aware_api_communicator as api_communicator
+from routeros_api import api_communicator
 from routeros_api import api_socket
 from routeros_api import base_api
 
@@ -8,7 +8,7 @@ from routeros_api import base_api
 def connect(host, username='admin', password='', port=8728):
     socket = api_socket.get_socket(host, port)
     base = base_api.Connection(socket)
-    communicator = api_communicator.ExceptionAwareApiCommunicator(base)
+    communicator = api_communicator.ApiCommunicator(base)
     close_handler = api_socket.CloseConnectionExceptionHandler(socket)
     communicator.add_handler(close_handler)
     api = RouterOsApi(communicator, socket)

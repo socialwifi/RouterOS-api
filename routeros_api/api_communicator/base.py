@@ -3,7 +3,7 @@ from routeros_api import sentence
 from routeros_api import query
 
 
-class ApiCommunicator(object):
+class ApiCommunicatorBase(object):
     def __init__(self, base):
         self.base = base
         self.tag = 0
