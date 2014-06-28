@@ -8,8 +8,8 @@ from routeros_api import base_api
 def connect(host, username='admin', password='', port=8728):
     socket = api_socket.get_socket(host, port)
     base = base_api.Connection(socket)
-    communicator = api_communicator.ApiCommunicator(base)
     close_handler = api_socket.CloseConnectionExceptionHandler(socket)
+    communicator = api_communicator.ApiCommunicator(base, close_handler)
     communicator.add_handler(close_handler)
     api = RouterOsApi(communicator, socket)
     api.login(username, password)
@@ -22,15 +22,15 @@ class RouterOsApi(object):
         self.socket = socket
 
     def login(self, login, password):
-        response = self.communicator.call('/', 'login', include_done=True)
+        response = self.get_resource('/').call('login', include_done=True)
         token = binascii.unhexlify(response[0]['ret'])
         hasher = hashlib.md5()
         hasher.update(b'\x00')
         hasher.update(password.encode())
         hasher.update(token)
         hashed = b'00' + hasher.hexdigest().encode('ascii')
-        self.communicator.call('/', 'login',
-                               {'name': login, 'response': hashed})
+        self.get_resource('/').call('login',
+                                    {'name': login, 'response': hashed})
 
     def get_resource(self, path):
         return RouterOsResource(self.communicator, path)

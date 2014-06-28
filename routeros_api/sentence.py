@@ -1,7 +1,6 @@
 import re
 
 from routeros_api import exceptions
-from routeros_api import utils
 from routeros_api import query
 
 
@@ -20,7 +19,7 @@ class ResponseSentence(object):
     def parse(cls, sentence):
         response_match = response_re.match(sentence[0])
         if response_match:
-            response = cls(response_match.group(1).decode())
+            response = cls(response_match.group(1))
             response.parse_attributes(sentence[1:])
         else:
             raise exceptions.RouterOsApiParsingError("Malformed sentence %s",
@@ -34,9 +33,9 @@ class ResponseSentence(object):
             tag_match = tag_re.match(serialized)
             if attribute_match:
                 key, value = attribute_match.groups()
-                self.attributes[key.decode()] = self.process_value(value)
+                self.attributes[key] = self.process_value(value)
             elif tag_match:
-                self.tag = tag_match.group(1).decode()
+                self.tag = tag_match.group(1)
             else:
                 raise exceptions.RouterOsApiParsingError(
                     "Malformed attribute %s", serialized)
@@ -47,12 +46,12 @@ class ResponseSentence(object):
 
 class CommandSentence(object):
     def __init__(self, path, command, tag=None):
-        self.path = utils.get_bytes(path)
-        self.command = utils.get_bytes(command)
+        self.path = path
+        self.command = command
         self.attributes = {}
         self.api_attributes = {}
         self.queries = set()
-        self.tag = utils.get_bytes(tag)
+        self.tag = tag
 
     def get_api_format(self):
         formated = [self.path + self.command]
@@ -65,7 +64,7 @@ class CommandSentence(object):
         return formated
 
     def set(self, key, value):
-        self.attributes[utils.get_bytes(key)] = utils.get_bytes(value)
+        self.attributes[key] = value
 
     def filter(self, *args, **kwargs):
         for arg in args:
