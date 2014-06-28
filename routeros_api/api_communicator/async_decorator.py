@@ -2,10 +2,8 @@ class AsyncApiCommunicator(object):
     def __init__(self, inner):
         self.inner = inner
 
-    def call_async(self, path, command, arguments=None, queries=None,
-                   additional_queries=(), include_done=False):
-        tag = self.inner.send(path, command, arguments, queries,
-                              additional_queries, include_done)
+    def call_async(self, *args, **kwargs):
+        tag = self.inner.send(*args, **kwargs)
         return ResponsePromise(self.inner, tag)
 
 class ResponsePromise(object):
