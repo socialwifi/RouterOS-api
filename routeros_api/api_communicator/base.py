@@ -9,9 +9,6 @@ class ApiCommunicatorBase(object):
         self.tag = 0
         self.response_buffor = {}
 
-    def call(self, *args, **kwargs):
-        return self.call_async(*args, **kwargs).get()
-
     def call_async(self, path, command, arguments=None, queries=None,
                    additional_queries=(), binary=False, include_done=False):
         tag = self._get_next_tag()
