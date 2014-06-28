@@ -39,12 +39,17 @@ class ApiCommunicatorBase(object):
         self.tag += 1
         return str(self.tag).encode()
 
-    def receive_single_response(self):
-        serialized = []
-        while not serialized:
-            serialized = self.base.receive_sentence()
-        response = sentence.ResponseSentence.parse(serialized)
-        return response
+    def receive(self, tag):
+        response = self.response_buffor[tag]
+        while(not response.done):
+            self.process_single_response()
+        del(self.response_buffor[tag])
+        if response.error:
+            message = "Error \"{error}\" executing command {command}".format(
+                error=response.error.decode(), command=response.command)
+            raise exceptions.RouterOsApiCommunicationError(message)
+        else:
+            return response.attributes
 
     def process_single_response(self):
         response = self.receive_single_response()
@@ -65,17 +70,12 @@ class ApiCommunicatorBase(object):
                 command=asynchronous_response.command)
             raise exceptions.RouterOsApiConnectionClosedError(message)
 
-    def receive(self, tag):
-        response = self.response_buffor[tag]
-        while(not response.done):
-            self.process_single_response()
-        del(self.response_buffor[tag])
-        if response.error:
-            message = "Error \"{error}\" executing command {command}".format(
-                error=response.error.decode(), command=response.command)
-            raise exceptions.RouterOsApiCommunicationError(message)
-        else:
-            return response.attributes
+    def receive_single_response(self):
+        serialized = []
+        while not serialized:
+            serialized = self.base.receive_sentence()
+        response = sentence.ResponseSentence.parse(serialized)
+        return response
 
 
 class AsynchronousResponse(object):
