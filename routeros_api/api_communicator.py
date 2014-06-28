@@ -9,14 +9,8 @@ class ApiCommunicator(object):
         self.tag = 0
         self.response_buffor = {}
 
-    def call(self, path, command, arguments=None, queries=None,
-             additional_queries=(), binary=False, include_done=False):
-        command = self.get_command(path, command, arguments, queries,
-                                   additional_queries=additional_queries)
-        self.send_command(command)
-        self.response_buffor['synchronous'] = AsynchronousResponse(
-            command, binary, include_done)
-        return self.receive_synchronous()
+    def call(self, *args, **kwargs):
+        return self.call_async(*args, **kwargs).get()
 
     def call_async(self, path, command, arguments=None, queries=None,
                    additional_queries=(), binary=False, include_done=False):
@@ -57,8 +51,10 @@ class ApiCommunicator(object):
 
     def process_single_response(self):
         response = self.receive_single_response()
-        tag = response.tag if response.tag is not None else 'synchronous'
-        asynchronous_response = self.response_buffor[tag]
+        if response.tag not in self.response_buffor:
+            raise exceptions.FatalRouterOsApiError(
+                "Unknown tag %s", response.tag)
+        asynchronous_response = self.response_buffor[response.tag]
         if response.type in asynchronous_response.get_meaningfull_responses():
             attributes = response.attributes
             asynchronous_response.attributes.append(attributes)
@@ -67,15 +63,12 @@ class ApiCommunicator(object):
         elif response.type == 'trap':
             asynchronous_response.error = response.attributes['message']
         elif response.type == 'fatal':
-            del(self.response_buffor[tag])
+            del(self.response_buffor[response.tag])
             message = "Fatal error executing command {command}".format(
                 command=asynchronous_response.command)
             raise exceptions.RouterOsApiConnectionClosedError(message)
 
-    def receive_synchronous(self):
-        return self.receive_asynchronous('synchronous')
-
-    def receive_asynchronous(self, tag):
+    def receive(self, tag):
         response = self.response_buffor[tag]
         while(not response.done):
             self.process_single_response()
@@ -118,4 +111,4 @@ class ResponsePromise(object):
         self.tag = tag
 
     def get(self):
-        return self.receiver.receive_asynchronous(self.tag)
+        return self.receiver.receive(self.tag)
