@@ -11,19 +11,19 @@ from routeros_api import sentence
 class TestResponseSentence(TestCase):
     def test_done(self):
         response = sentence.ResponseSentence.parse([b'!done'])
-        self.assertEqual(response.type, 'done')
+        self.assertEqual(response.type, b'done')
 
     def test_simple_re(self):
         response = sentence.ResponseSentence.parse([b'!re'])
-        self.assertEqual(response.type, 're')
+        self.assertEqual(response.type, b're')
 
     def test_re_with_attributes(self):
         response = sentence.ResponseSentence.parse([b'!re', b'=a=b'])
-        self.assertEqual(response.attributes['a'], b'b')
+        self.assertEqual(response.attributes[b'a'], b'b')
 
     def test_re_with_tag(self):
         response = sentence.ResponseSentence.parse([b'!re', b'.tag=b'])
-        self.assertEqual(response.tag, 'b')
+        self.assertEqual(response.tag, b'b')
 
     def test_re_with_invalid_word(self):
         self.assertRaises(exceptions.RouterOsApiParsingError,
@@ -31,8 +31,8 @@ class TestResponseSentence(TestCase):
 
     def test_trap(self):
         response = sentence.ResponseSentence.parse([b'!trap', b'=message=b'])
-        self.assertEqual(response.type, 'trap')
-        self.assertEqual(response.attributes['message'], b'b')
+        self.assertEqual(response.type, b'trap')
+        self.assertEqual(response.attributes[b'message'], b'b')
 
 class TestCommandSentence(TestCase):
     def test_login_sentence(self):
