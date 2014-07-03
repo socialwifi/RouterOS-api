@@ -46,7 +46,7 @@ class RouterOsApi(object):
 class RouterOsResource(object):
     def __init__(self, communicator, path, binary=False):
         self.communicator = communicator
-        self.path = path
+        self.path = clean_path(path)
         self.binary = binary
 
     def get(self, **kwargs):
@@ -92,3 +92,11 @@ class RouterOsResource(object):
             self.path, command, arguments=arguments, queries=queries,
             additional_queries=additional_queries, binary=self.binary,
             include_done=include_done)
+
+
+def clean_path(path):
+    if not path.endswith('/'):
+        path += '/'
+    if not path.startswith('/'):
+        path = '/' + path
+    return path
