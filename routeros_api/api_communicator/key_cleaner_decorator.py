@@ -21,6 +21,7 @@ def encode_dictionary(dictionary):
 
 
 def encode_key(key):
+    key = key.replace(b'_', b'-')
     if key in [b'id', b'proplist']:
         return b'.' + key
     else:
