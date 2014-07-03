@@ -81,14 +81,14 @@ class RouterOsResource(object):
 
     def call(self, command, arguments=None, queries=None,
              additional_queries=(), include_done=False):
-        return self.communicator.call_async(
+        return self.communicator.call(
             self.path, command, arguments=arguments, queries=queries,
             additional_queries=additional_queries, binary=self.binary,
             include_done=include_done).get()
 
     def call_async(self, command, arguments=None, queries=None,
              additional_queries=(), include_done=False):
-        return self.communicator.call_async(
+        return self.communicator.call(
             self.path, command, arguments=arguments, queries=queries,
             additional_queries=additional_queries, binary=self.binary,
             include_done=include_done)

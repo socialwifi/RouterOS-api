@@ -2,14 +2,14 @@ class EncodingApiCommunicator(object):
     def __init__(self, inner):
         self.inner = inner
 
-    def call_async(self, path, command, arguments=None, queries=None,
+    def call(self, path, command, arguments=None, queries=None,
                    additional_queries=(), include_done=False, binary=False):
         queries = queries or {}
         path = path.encode()
         command = command.encode()
         arguments = self.encode_dictionary(arguments or {}, binary)
         queries = self.encode_dictionary(queries or {}, binary)
-        promise = self.inner.call_async(
+        promise = self.inner.call(
             path, command, arguments, queries, additional_queries,
             include_done)
         return EncodedPromiseDecorator(promise, binary)
