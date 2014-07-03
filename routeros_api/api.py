@@ -93,6 +93,10 @@ class RouterOsResource(object):
             additional_queries=additional_queries, binary=self.binary,
             include_done=include_done)
 
+    def __repr__(self):
+        return 'RouterOsResource({path}, {binary})'.format(path=self.path,
+                                                           binary=self.binary)
+
 
 def clean_path(path):
     if not path.endswith('/'):
