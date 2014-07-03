@@ -17,7 +17,8 @@ class KeyCleanerApiCommunicator(object):
 
 
 def encode_dictionary(dictionary):
-    return {encode_key(key): value for key, value in dictionary.items()}
+    return dict([(encode_key(key), value) for key, value in
+                 dictionary.items()])
 
 
 def encode_key(key):
@@ -28,7 +29,8 @@ def encode_key(key):
         return key
 
 def decode_dictionary(dictionary):
-    return {decode_key(key): value for key, value in dictionary.items()}
+    return dict([(decode_key(key), value) for key, value in
+                 dictionary.items()])
 
 
 def decode_key(key):
