@@ -9,7 +9,8 @@ def connect(host, username='admin', password='', port=8728):
     socket = api_socket.get_socket(host, port)
     base = base_api.Connection(socket)
     close_handler = api_socket.CloseConnectionExceptionHandler(socket)
-    communicator = api_communicator.ApiCommunicator(base, close_handler)
+    communicator = api_communicator.ApiCommunicator(base)
+    communicator.add_exception_handler(close_handler)
     api = RouterOsApi(communicator, socket)
     api.login(username, password)
     return api
