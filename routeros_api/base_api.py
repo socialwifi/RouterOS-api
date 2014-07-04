@@ -1,5 +1,8 @@
 import socket
 
+from routeros_api import exceptions
+
+
 LENGTH_MATRIX = [
     (0x80, 0x0),
     (0x40, 0x80),
@@ -9,9 +12,6 @@ LENGTH_MATRIX = [
 ]
 
 OVER_MAX_LENGTH_MASK = 0xF8
-
-class RouterOsApiError(Exception):
-    pass
 
 
 class Connection(object):
@@ -24,13 +24,13 @@ class Connection(object):
                 full_word = encode_length(len(word)) + word
                 self.socket.sendall(full_word)
         except socket.error as e:
-            RouterOsApiError(str(e))
+            raise exceptions.RouterOsApiConnectionError(str(e))
 
     def receive_sentence(self):
         try:
             return list(iter(self.receive_word, b''))
         except socket.error as e:
-            RouterOsApiError(str(e))
+            raise exceptions.RouterOsApiConnectionError(str(e))
 
     def receive_word(self):
         result = []
@@ -52,13 +52,13 @@ def encode_length(length):
 
 def _encode_length(length):
     if length < 0:
-        raise ValueError("Negative length.")
+        raise exceptions.FatalRouterOsApiError("Negative length.")
 
     for bytes, (max_value, mask) in enumerate(LENGTH_MATRIX):
         offset = 8 * bytes
         if length < (max_value << offset):
             return length | (mask << offset), bytes + 1
-    raise ValueError("String to long.")
+    raise exceptions.FatalRouterOsApiError("String to long.")
 
 
 def to_bytes(number, length):
@@ -80,7 +80,7 @@ def decode_length(read):
             result = first & ~next_mask
             break
     else:
-        raise ValueError
+        raise exceptions.FatalRouterOsApiError("Malformed length")
     for _ in range(bytes):
         result <<= 8
         result += ord(read(1))
