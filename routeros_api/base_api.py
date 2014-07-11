@@ -22,7 +22,7 @@ class Connection(object):
         try:
             for word in words + [b'']:
                 full_word = encode_length(len(word)) + word
-                self.socket.sendall(full_word)
+                self.socket.send(full_word)
         except socket.error as e:
             raise exceptions.RouterOsApiConnectionError(str(e))
 
@@ -35,9 +35,9 @@ class Connection(object):
     def receive_word(self):
         result = []
         result_length = 0
-        expected_length = decode_length(self.socket.recv)
+        expected_length = decode_length(self.socket.receive)
         while result_length != expected_length:
-            received = self.socket.recv(expected_length - result_length)
+            received = self.socket.receive(expected_length - result_length)
             result.append(received)
             result_length += len(received)
             assert received

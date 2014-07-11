@@ -102,11 +102,12 @@ class TestConnection(TestCase):
             mock.call(b'\x03bar'),
             mock.call(b'\x00')
         ]
-        self.assertEqual(expected, socket.sendall.mock_calls)
+        self.assertEqual(expected, socket.send.mock_calls)
 
     def test_receiving(self):
         socket = mock.Mock()
-        socket.recv.side_effect = [b'\x03', b'foo', b'\x03', b'bar', b'\x00']
+        socket.receive.side_effect = [b'\x03', b'foo', b'\x03', b'bar',
+                                      b'\x00']
         connection = base_api.Connection(socket)
         result = connection.receive_sentence()
         self.assertEqual([b'foo', b'bar'], result)
@@ -117,4 +118,4 @@ class TestConnection(TestCase):
             mock.call(3),
             mock.call(1),
         ]
-        self.assertEqual(expected, socket.recv.mock_calls)
+        self.assertEqual(expected, socket.receive.mock_calls)

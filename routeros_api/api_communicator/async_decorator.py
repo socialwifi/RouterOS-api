@@ -10,6 +10,9 @@ class ResponsePromise(object):
     def __init__(self, receiver, tag):
         self.receiver = receiver
         self.tag = tag
+        self.response = None
 
     def get(self):
-        return self.receiver.receive(self.tag)
+        if self.response is None:
+            self.response = self.receiver.receive(self.tag)
+        return self.response

@@ -7,7 +7,7 @@ def get_socket(hostname, port):
     api_socket.settimeout(15.0)
     api_socket.connect((hostname, port))
     set_keepalive(api_socket, after_idle_sec=10)
-    return api_socket
+    return SocketWrapper(api_socket)
 
 # http://stackoverflow.com/a/14855726
 def set_keepalive(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
@@ -21,6 +21,31 @@ def set_keepalive(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, after_idle_sec)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
+
+
+class SocketWrapper(object):
+    def __init__(self, socket):
+        self.socket = socket
+
+    @property
+    def error(self):
+        return self.socket.error
+
+    def send(self, bytes):
+        return self.socket.sendall(bytes)
+
+    def receive(self, length):
+        while True:
+            try:
+                return self.socket.recv(length)
+            except self.socket.error as e:
+                if e.args[0] == socket.EINTR:
+                    continue
+                else:
+                    raise
+
+    def close(self):
+        return self.socket.close()
 
 
 class CloseConnectionExceptionHandler:
