@@ -1,6 +1,11 @@
 import socket
 from routeros_api import exceptions
+try:
+    import errno
+except ImportError:
+    errno = None
 
+EINTR = getattr(errno, 'EINTR', 4)
 
 def get_socket(hostname, port):
     api_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -27,10 +32,6 @@ class SocketWrapper(object):
     def __init__(self, socket):
         self.socket = socket
 
-    @property
-    def error(self):
-        return self.socket.error
-
     def send(self, bytes):
         return self.socket.sendall(bytes)
 
@@ -38,8 +39,8 @@ class SocketWrapper(object):
         while True:
             try:
                 return self.socket.recv(length)
-            except self.socket.error as e:
-                if e.args[0] == socket.EINTR:
+            except socket.error as e:
+                if e.args[0] == EINTR:
                     continue
                 else:
                     raise
