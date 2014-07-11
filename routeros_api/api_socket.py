@@ -35,7 +35,14 @@ class SocketWrapper(object):
         return self.socket.sendall(bytes)
 
     def receive(self, length):
-        return self.socket.recv(length)
+        while True:
+            try:
+                return self.socket.recv(length)
+            except self.socket.error as e:
+                if e.args[0] == socket.EINTR:
+                    continue
+                else:
+                    raise
 
     def close(self):
         return self.socket.close()
