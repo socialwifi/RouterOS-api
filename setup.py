@@ -8,5 +8,5 @@ setup(version='0.1',
       author_email='tomasz@pozytywnie.pl',
       packages=find_packages(),
       test_suite="tests",
-      licence="MIT",
+      license="MIT",
 )
