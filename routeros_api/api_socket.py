@@ -54,5 +54,8 @@ class CloseConnectionExceptionHandler:
         self.socket = socket
 
     def handle(self, exception):
-        if isinstance(exception, exceptions.FatalRouterOsApiError):
+        connection_closed = isinstance(
+            exception, exceptions.RouterOsApiConnectionClosedError)
+        fatal_error = isinstance(exception, exceptions.FatalRouterOsApiError)
+        if connection_closed or fatal_error:
             self.socket.close()
