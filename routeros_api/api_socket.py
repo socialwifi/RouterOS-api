@@ -10,7 +10,14 @@ EINTR = getattr(errno, 'EINTR', 4)
 def get_socket(hostname, port):
     api_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     api_socket.settimeout(15.0)
-    api_socket.connect((hostname, port))
+    while True:
+        try:
+            api_socket.connect((hostname, port))
+        except socket.error as e:
+            if e.args[0] != EINTR:
+                raise
+        else:
+            break
     set_keepalive(api_socket, after_idle_sec=10)
     return SocketWrapper(api_socket)
 
