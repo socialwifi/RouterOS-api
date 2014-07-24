@@ -36,6 +36,5 @@ class TestGetSocket(TestCase):
             socket.error(1),
             None
         ]
-        with self.assertRaises(socket.error):
-            api_socket.get_socket('host', 123)
+        self.assertRaises(socket.error, api_socket.get_socket, 'host', 123)
         connect.assert_has_calls([mock.call(('host', 123))])
