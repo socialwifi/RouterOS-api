@@ -7,6 +7,7 @@ except ImportError:
     import mock
 
 from routeros_api import api_socket
+from routeros_api import exceptions
 
 class TestSocketWrapper(TestCase):
     def test_socket(self):
@@ -36,5 +37,6 @@ class TestGetSocket(TestCase):
             socket.error(1),
             None
         ]
-        self.assertRaises(socket.error, api_socket.get_socket, 'host', 123)
+        self.assertRaises(exceptions.RouterOsApiConnectionError,
+                          api_socket.get_socket, 'host', 123)
         connect.assert_has_calls([mock.call(('host', 123))])
