@@ -15,7 +15,7 @@ def get_socket(hostname, port):
             api_socket.connect((hostname, port))
         except socket.error as e:
             if e.args[0] != EINTR:
-                raise
+                raise exceptions.RouterOsApiConnectionError(e)
         else:
             break
     set_keepalive(api_socket, after_idle_sec=10)
