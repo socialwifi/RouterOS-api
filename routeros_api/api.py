@@ -34,20 +34,19 @@ class RouterOsApi(object):
             'login', {'name': login.encode(), 'response': hashed})
 
     def get_resource(self, path):
-        return RouterOsResource(self.communicator, path)
+        raise NotImplementedError
 
     def get_binary_resource(self, path):
-        return RouterOsResource(self.communicator, path, binary=True)
+        return RouterOsBinaryResource(self.communicator, path)
 
     def close(self):
         self.socket.close()
 
 
-class RouterOsResource(object):
-    def __init__(self, communicator, path, binary=False):
+class RouterOsBinaryResource(object):
+    def __init__(self, communicator, path):
         self.communicator = communicator
         self.path = clean_path(path)
-        self.binary = binary
 
     def get(self, **kwargs):
         return self.call('print', {}, kwargs)
@@ -83,19 +82,18 @@ class RouterOsResource(object):
              additional_queries=(), include_done=False):
         return self.communicator.call(
             self.path, command, arguments=arguments, queries=queries,
-            additional_queries=additional_queries, binary=self.binary,
+            additional_queries=additional_queries,
             include_done=include_done).get()
 
     def call_async(self, command, arguments=None, queries=None,
              additional_queries=(), include_done=False):
         return self.communicator.call(
             self.path, command, arguments=arguments, queries=queries,
-            additional_queries=additional_queries, binary=self.binary,
+            additional_queries=additional_queries,
             include_done=include_done)
 
     def __repr__(self):
-        return 'RouterOsResource({path}, {binary})'.format(path=self.path,
-                                                           binary=self.binary)
+        return type(self).__name__ + '({path})'.format(path=self.path)
 
 
 def clean_path(path):
