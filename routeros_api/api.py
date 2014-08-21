@@ -23,8 +23,8 @@ class RouterOsApi(object):
 
     def login(self, login, password):
         response = self.get_binary_resource('/').call(
-            'login', include_done=True)
-        token = binascii.unhexlify(response[0]['ret'])
+            'login')
+        token = binascii.unhexlify(response.done_message['ret'])
         hasher = hashlib.md5()
         hasher.update(b'\x00')
         hasher.update(password.encode())
@@ -79,18 +79,16 @@ class RouterOsBinaryResource(object):
         return self.call_async('remove', kwargs)
 
     def call(self, command, arguments=None, queries=None,
-             additional_queries=(), include_done=False):
+             additional_queries=()):
         return self.communicator.call(
             self.path, command, arguments=arguments, queries=queries,
-            additional_queries=additional_queries,
-            include_done=include_done).get()
+            additional_queries=additional_queries).get()
 
     def call_async(self, command, arguments=None, queries=None,
-             additional_queries=(), include_done=False):
+             additional_queries=()):
         return self.communicator.call(
             self.path, command, arguments=arguments, queries=queries,
-            additional_queries=additional_queries,
-            include_done=include_done)
+            additional_queries=additional_queries)
 
     def __repr__(self):
         return type(self).__name__ + '({path})'.format(path=self.path)

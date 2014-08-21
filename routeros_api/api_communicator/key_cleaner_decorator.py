@@ -3,17 +3,16 @@ class KeyCleanerApiCommunicator(object):
         self.inner = inner
 
     def send(self, path, command, arguments=None, queries=None,
-             additional_queries=(), include_done=False):
+             additional_queries=()):
         encoded_arguments = encode_dictionary(arguments or {})
         encoded_queries = encode_dictionary(queries or {})
         return self.inner.send(
             path, command, arguments=encoded_arguments,
-            queries=encoded_queries, additional_queries=additional_queries,
-            include_done=include_done)
+            queries=encoded_queries, additional_queries=additional_queries)
 
     def receive(self, tag):
         answers = self.inner.receive(tag)
-        return [decode_dictionary(answer) for answer in answers]
+        return answers.map(decode_dictionary)
 
 
 def encode_dictionary(dictionary):

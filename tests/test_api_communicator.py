@@ -14,8 +14,8 @@ class TestCommunicator(TestCase):
         base.receive_sentence.return_value = [b'!done', b'=ret=some-hex',
                                               b'.tag=1']
         communicator = api_communicator.ApiCommunicator(base)
-        response = communicator.call('/', 'login', include_done=True).get()
-        self.assertEqual(response[0]['ret'], b'some-hex')
+        response = communicator.call('/', 'login').get()
+        self.assertEqual(response.done_message['ret'], b'some-hex')
 
     def test_normal_call(self):
         base = mock.Mock()

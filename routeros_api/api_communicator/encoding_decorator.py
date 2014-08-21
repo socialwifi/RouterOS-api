@@ -3,14 +3,13 @@ class EncodingApiCommunicator(object):
         self.inner = inner
 
     def call(self, path, command, arguments=None, queries=None,
-                   additional_queries=(), include_done=False):
+                   additional_queries=()):
         path = path.encode()
         command = command.encode()
         arguments = self.transform_dictionary(arguments or {})
         queries = self.transform_dictionary(queries or {})
         promise = self.inner.call(
-            path, command, arguments, queries, additional_queries,
-            include_done)
+            path, command, arguments, queries, additional_queries)
         return self.decorate_promise(promise)
 
     def transform_dictionary(self, dictionary):
@@ -24,14 +23,13 @@ class EncodingApiCommunicator(object):
         return EncodedPromiseDecorator(promise)
 
 
-
 class EncodedPromiseDecorator(object):
     def __init__(self, inner):
         self.inner = inner
 
     def get(self):
         response = self.inner.get()
-        return [self.transform_row(row) for row in response]
+        return response.map(self.transform_row)
 
     def transform_row(self, row):
         return dict(self.transform_item(item) for item in row.items())
