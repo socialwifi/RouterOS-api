@@ -10,13 +10,13 @@ class ApiCommunicatorBase(object):
         self.response_buffor = {}
 
     def send(self, path, command, arguments=None, queries=None,
-                   additional_queries=(), include_done=False):
+                   additional_queries=()):
         tag = self._get_next_tag()
         command = self.get_command(path, command, arguments, queries, tag=tag,
                                    additional_queries=additional_queries)
         self.send_command(command)
-        self.response_buffor[tag] = AsynchronousResponse(
-            command, include_done)
+        self.response_buffor[tag] = AsynchronousResponseCollector(
+            command)
         return tag
 
     def get_command(self, path, command, arguments=None, queries=None,
@@ -57,11 +57,13 @@ class ApiCommunicatorBase(object):
             raise exceptions.FatalRouterOsApiError(
                 "Unknown tag %s", response.tag)
         asynchronous_response = self.response_buffor[response.tag]
-        if response.type in asynchronous_response.get_meaningfull_responses():
+        if response.type == b're':
             attributes = response.attributes
             asynchronous_response.attributes.append(attributes)
         if response.type == b'done':
             asynchronous_response.done = True
+            attributes = response.attributes
+            asynchronous_response.attributes.done_message = attributes
         elif response.type == b'trap':
             asynchronous_response.error = response.attributes[b'message']
         elif response.type == b'fatal':
@@ -78,17 +80,20 @@ class ApiCommunicatorBase(object):
         return response
 
 
-class AsynchronousResponse(object):
-    def __init__(self, command, include_done):
-        self.attributes = []
+class AsynchronousResponseCollector(object):
+    def __init__(self, command):
+        self.attributes = AsynchronousResponse()
         self.done = False
         self.error = None
         self.command = command
-        self.include_done = include_done
 
-    def get_meaningfull_responses(self):
-        if self.include_done:
-            save_responses = [b're', b'done']
-        else:
-            save_responses = [b're']
-        return save_responses
+
+class AsynchronousResponse(list):
+    def __init__(self, *args, **kwargs):
+        super(AsynchronousResponse, self).__init__(*args, **kwargs)
+        self.done_message = {}
+
+    def map(self, function):
+        result = type(self)(function(item) for item in self)
+        result.done_message = function(self.done_message)
+        return result
