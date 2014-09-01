@@ -67,7 +67,7 @@ class RouterOsResource(RouterOsBinaryResource):
 
     def transform_item(self, item):
         key, value = item
-        return (key, self.structure.get(key).get_mikrotik_value(value))
+        return (key, self.structure[key].get_mikrotik_value(value))
 
     def decorate_promise(self, promise):
         return TypedPromiseDecorator(promise, self.structure)
@@ -87,7 +87,7 @@ class TypedPromiseDecorator(object):
 
     def transform_item(self, item):
         key, value = item
-        return (key, self.structure.get(key).get_python_value(value))
+        return (key, self.structure[key].get_python_value(value))
 
 
 def clean_path(path):
