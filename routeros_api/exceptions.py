@@ -13,5 +13,8 @@ class RouterOsApiParsingError(RouterOsApiError):
 class RouterOsApiCommunicationError(RouterOsApiError):
     pass
 
+class RouterOsApiFatalCommunicationError(RouterOsApiError):
+    pass
+
 class RouterOsApiConnectionClosedError(RouterOsApiError):
     pass

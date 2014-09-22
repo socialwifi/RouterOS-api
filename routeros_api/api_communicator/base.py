@@ -70,7 +70,7 @@ class ApiCommunicatorBase(object):
             del(self.response_buffor[response.tag])
             message = "Fatal error executing command {command}".format(
                 command=asynchronous_response.command)
-            raise exceptions.RouterOsApiConnectionClosedError(message)
+            raise exceptions.RouterOsApiFatalCommunicationError(message)
 
     def receive_single_response(self):
         serialized = []

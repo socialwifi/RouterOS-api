@@ -45,12 +45,19 @@ class SocketWrapper(object):
     def receive(self, length):
         while True:
             try:
-                return self.socket.recv(length)
+                return self._receive_and_check_connection(length)
             except socket.error as e:
                 if e.args[0] == EINTR:
                     continue
                 else:
                     raise
+
+    def _receive_and_check_connection(self, length):
+        bytes = self.socket.recv(length)
+        if bytes:
+            return bytes
+        else:
+            raise exceptions.RouterOsApiConnectionClosedError
 
     def close(self):
         return self.socket.close()
@@ -62,7 +69,7 @@ class CloseConnectionExceptionHandler:
 
     def handle(self, exception):
         connection_closed = isinstance(
-            exception, exceptions.RouterOsApiConnectionClosedError)
+            exception, exceptions.RouterOsApiFatalCommunicationError)
         fatal_error = isinstance(exception, exceptions.FatalRouterOsApiError)
         if connection_closed or fatal_error:
             self.socket.close()
