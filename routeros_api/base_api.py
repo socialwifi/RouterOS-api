@@ -40,7 +40,6 @@ class Connection(object):
             received = self.socket.receive(expected_length - result_length)
             result.append(received)
             result_length += len(received)
-            assert received
             assert result_length <= expected_length
         return b''.join(result)
 
