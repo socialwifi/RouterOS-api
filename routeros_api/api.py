@@ -24,8 +24,7 @@ class RouterOsApi(object):
         self.socket = socket
 
     def login(self, login, password):
-        response = self.get_binary_resource('/').call(
-            'login')
+        response = self.get_binary_resource('/').call('login')
         token = binascii.unhexlify(response.done_message['ret'])
         hasher = hashlib.md5()
         hasher.update(b'\x00')
