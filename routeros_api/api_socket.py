@@ -35,6 +35,11 @@ def set_keepalive(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
 
 
+class DummySocket(object):
+    def close(self):
+        pass
+
+
 class SocketWrapper(object):
     def __init__(self, socket):
         self.socket = socket
@@ -61,15 +66,3 @@ class SocketWrapper(object):
 
     def close(self):
         return self.socket.close()
-
-
-class CloseConnectionExceptionHandler:
-    def __init__(self, socket):
-        self.socket = socket
-
-    def handle(self, exception):
-        connection_closed = isinstance(
-            exception, exceptions.RouterOsApiFatalCommunicationError)
-        fatal_error = isinstance(exception, exceptions.FatalRouterOsApiError)
-        if connection_closed or fatal_error:
-            self.socket.close()
