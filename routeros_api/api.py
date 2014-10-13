@@ -14,16 +14,15 @@ def connect(host, username='admin', password='', port=8728):
 
 
 class RouterOsApiPool(object):
-    def __init__(self, host, username='admin', password='', port=8728,
-                 error_message_to_exception_map=None):
+    def __init__(self, host, username='admin', password='', port=8728):
         self.host = host
         self.username = username
         self.password = password
         self.port = port
-        self.error_message_to_exception_map = (
-            error_message_to_exception_map or {})
         self.connected = False
         self.socket = api_socket.DummySocket()
+        self.communication_exception_parser = (
+            communication_exception_parsers.ExceptionHandler())
 
     def get_api(self):
         if not self.connected:
@@ -44,8 +43,7 @@ class RouterOsApiPool(object):
 
     def _get_exception_handlers(self):
         yield CloseConnectionExceptionHandler(self)
-        yield communication_exception_parsers.ExceptionHandler(
-            self.error_message_to_exception_map)
+        yield self.communication_exception_parser
 
 
 class RouterOsApi(object):
