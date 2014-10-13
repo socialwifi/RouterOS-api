@@ -11,7 +11,9 @@ class RouterOsApiParsingError(RouterOsApiError):
     pass
 
 class RouterOsApiCommunicationError(RouterOsApiError):
-    pass
+    def __init__(self, message, original_message):
+        super(RouterOsApiCommunicationError, self).__init__(message)
+        self.original_message = original_message
 
 class RouterOsApiFatalCommunicationError(RouterOsApiError):
     pass
