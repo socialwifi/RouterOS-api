@@ -47,7 +47,8 @@ class ApiCommunicatorBase(object):
         if response.error:
             message = "Error \"{error}\" executing command {command}".format(
                 error=response.error.decode(), command=response.command)
-            raise exceptions.RouterOsApiCommunicationError(message)
+            raise exceptions.RouterOsApiCommunicationError(
+                message, response.error)
         else:
             return response.attributes
 

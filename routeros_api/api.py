@@ -1,6 +1,7 @@
 import hashlib
 import binascii
 from routeros_api import api_communicator
+from routeros_api import communication_exception_parsers
 from routeros_api import api_socket
 from routeros_api import api_structure
 from routeros_api import base_api
@@ -20,6 +21,8 @@ class RouterOsApiPool(object):
         self.port = port
         self.connected = False
         self.socket = api_socket.DummySocket()
+        self.communication_exception_parser = (
+            communication_exception_parsers.ExceptionHandler())
 
     def get_api(self):
         if not self.connected:
@@ -27,8 +30,8 @@ class RouterOsApiPool(object):
             base = base_api.Connection(self.socket)
             communicator = api_communicator.ApiCommunicator(base)
             self.api = RouterOsApi(communicator)
-            close_handler = CloseConnectionExceptionHandler(self)
-            communicator.add_exception_handler(close_handler)
+            for handler in self._get_exception_handlers():
+                communicator.add_exception_handler(handler)
             self.api.login(self.username, self.password)
             self.connected = True
         return self.api
@@ -37,6 +40,10 @@ class RouterOsApiPool(object):
         self.connected = False
         self.socket.close()
         self.socket = api_socket.DummySocket()
+
+    def _get_exception_handlers(self):
+        yield CloseConnectionExceptionHandler(self)
+        yield self.communication_exception_parser
 
 
 class RouterOsApi(object):
