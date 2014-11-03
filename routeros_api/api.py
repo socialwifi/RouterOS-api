@@ -75,7 +75,7 @@ class CloseConnectionExceptionHandler:
 
     def handle(self, exception):
         connection_closed = isinstance(
-            exception, exceptions.RouterOsApiCommunicationError)
+            exception, exceptions.RouterOsApiConnectionError)
         fatal_error = isinstance(exception, exceptions.FatalRouterOsApiError)
         if connection_closed or fatal_error:
             self.pool.disconnect()
