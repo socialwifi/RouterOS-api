@@ -14,6 +14,8 @@ def connect(host, username='admin', password='', port=8728):
 
 
 class RouterOsApiPool(object):
+    socket_timeout = 15.
+
     def __init__(self, host, username='admin', password='', port=8728):
         self.host = host
         self.username = username
@@ -26,7 +28,8 @@ class RouterOsApiPool(object):
 
     def get_api(self):
         if not self.connected:
-            self.socket = api_socket.get_socket(self.host, self.port)
+            self.socket = api_socket.get_socket(self.host, self.port,
+                                                timeout=self.socket_timeout)
             base = base_api.Connection(self.socket)
             communicator = api_communicator.ApiCommunicator(base)
             self.api = RouterOsApi(communicator)
@@ -40,6 +43,10 @@ class RouterOsApiPool(object):
         self.connected = False
         self.socket.close()
         self.socket = api_socket.DummySocket()
+
+    def set_timeout(self, socket_timeout):
+        self.socket_timeout = socket_timeout
+        self.socket.settimeout(socket_timeout)
 
     def _get_exception_handlers(self):
         yield CloseConnectionExceptionHandler(self)

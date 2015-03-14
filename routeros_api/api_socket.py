@@ -7,9 +7,9 @@ except ImportError:
 
 EINTR = getattr(errno, 'EINTR', 4)
 
-def get_socket(hostname, port):
+def get_socket(hostname, port, timeout=15.0):
     api_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    api_socket.settimeout(15.0)
+    api_socket.settimeout(timeout)
     while True:
         try:
             api_socket.connect((hostname, port))
@@ -39,6 +39,9 @@ class DummySocket(object):
     def close(self):
         pass
 
+    def settimeout(self, timeout):
+        pass
+
 
 class SocketWrapper(object):
     def __init__(self, socket):
@@ -66,3 +69,6 @@ class SocketWrapper(object):
 
     def close(self):
         return self.socket.close()
+
+    def settimeout(self, timeout):
+        self.socket.settimeout(timeout)
