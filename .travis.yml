@@ -7,4 +7,5 @@ python:
   - "3.4"
 install:
   - pip install mock
+  - pip install six
 script: python setup.py test

@@ -18,6 +18,13 @@ class ExceptionAwareApiCommunicator(object):
         except exceptions.RouterOsApiError as e:
             self.handle_exception(e)
 
+    def receive_iterator(self, tag):
+        try:
+            for line in self.inner.receive_iterator(tag):
+                yield line
+        except exceptions.RouterOsApiError as e:
+            self.handle_exception(e)
+
     def add_handler(self, handler):
         self.exception_handlers.append(handler)
 

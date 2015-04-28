@@ -9,4 +9,5 @@ setup(version='0.11',
       packages=find_packages(),
       test_suite="tests",
       license="MIT",
+      install_requires=['six'],
 )

@@ -1,3 +1,5 @@
+import six
+
 from routeros_api import exceptions
 from routeros_api import sentence
 from routeros_api import query
@@ -39,17 +41,19 @@ class ApiCommunicatorBase(object):
         return str(self.tag).encode()
 
     def receive(self, tag):
-        response = self.response_buffor[tag]
-        while(not response.done):
-            self.process_single_response()
-        del(self.response_buffor[tag])
+        response_buffor_manager = AsynchronousResponseBufforManager(self, tag)
+        while(not response_buffor_manager.done):
+            response_buffor_manager.step_to_finish_response()
+        response_buffor_manager.clean()
+        response = response_buffor_manager.response
         if response.error:
-            message = "Error \"{error}\" executing command {command}".format(
-                error=response.error.decode(), command=response.command)
-            raise exceptions.RouterOsApiCommunicationError(
-                message, response.error)
+            raise response.error_as_exception
         else:
             return response
+
+    def receive_iterator(self, tag):
+        response_buffor_manager = AsynchronousResponseBufforManager(self, tag)
+        return AsynchronousResponseIterator(response_buffor_manager)
 
     def process_single_response(self):
         response = self.receive_single_response()
@@ -88,6 +92,51 @@ class SingleResponse(object):
             raise exceptions.RouterOsApiFatalCommunicationError(message)
 
 
+class AsynchronousResponseIterator(six.Iterator):
+    def __init__(self, response_buffor_manager):
+        self.response_buffor_manager = response_buffor_manager
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        response = self.response_buffor_manager.response
+        while self.end_of_buffered and not self.response_buffor_manager.done:
+            self.response_buffor_manager.step_to_finish_response()
+        if self.end_of_buffered and response.error:
+            self.response_buffor_manager.clean()
+            raise response.error_as_exception
+        elif self.end_of_buffered:
+            self.response_buffor_manager.clean()
+            raise StopIteration
+        else:
+            current = response[self.index]
+            self.index += 1
+            return current
+
+    @property
+    def end_of_buffered(self):
+        return self.index >= len(self.response_buffor_manager.response)
+
+
+class AsynchronousResponseBufforManager(object):
+    def __init__(self, receiver, tag):
+        self.receiver = receiver
+        self.tag = tag
+        self.response = self.receiver.response_buffor[self.tag]
+
+    def step_to_finish_response(self):
+        self.receiver.process_single_response()
+
+    @property
+    def done(self):
+        return self.response.done
+
+    def clean(self):
+        del(self.receiver.response_buffor[self.tag])
+
+
 class AsynchronousResponse(list):
     def __init__(self, *args, **kwargs):
         self.command = kwargs.pop('command')
@@ -95,6 +144,18 @@ class AsynchronousResponse(list):
         self.done_message = {}
         self.done = False
         self.error = None
+
+    @property
+    def error_as_exception(self):
+        if self.error:
+            message = "Error \"{error}\" executing command {command}".format(
+                error=self.error.decode(),
+                command=self.command)
+            return exceptions.RouterOsApiCommunicationError(
+                message, self.error)
+        else:
+            return None
+
 
     def map(self, function):
         result = type(self)(map(function, self), command=self.command)
