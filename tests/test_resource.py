@@ -17,7 +17,7 @@ BOOLEAN_STRUCTURE = {'boolean': structure.BooleanField()}
 class TestTypedResource(unittest.TestCase):
     def test_unknown_resource_get(self):
         communicator = mock.Mock()
-        response = base.AsynchronousResponse([{'x': b'y'}])
+        response = base.AsynchronousResponse([{'x': b'y'}], command='')
         communicator.call.return_value.get.return_value = response
         some_resource = resource.RouterOsResource(communicator, '/unknown',
                                                   structure.default_structure)
@@ -35,7 +35,7 @@ class TestTypedResource(unittest.TestCase):
 
     def test_bytes_resource_get(self):
         communicator = mock.Mock()
-        response = base.AsynchronousResponse([{'bytes': b'y'}])
+        response = base.AsynchronousResponse([{'bytes': b'y'}], command='')
         communicator.call.return_value.get.return_value = response
         some_resource = resource.RouterOsResource(communicator, '/bytes',
                                                   BYTES_STRUCTURE)
@@ -53,7 +53,7 @@ class TestTypedResource(unittest.TestCase):
 
     def test_boolean_resource_get(self):
         communicator = mock.Mock()
-        response = base.AsynchronousResponse([{'boolean': b'yes'}])
+        response = base.AsynchronousResponse([{'boolean': b'yes'}], command='')
         communicator.call.return_value.get.return_value = response
         some_resource = resource.RouterOsResource(communicator, '/boolean',
                                                   BOOLEAN_STRUCTURE)

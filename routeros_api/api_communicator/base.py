@@ -15,8 +15,7 @@ class ApiCommunicatorBase(object):
         command = self.get_command(path, command, arguments, queries, tag=tag,
                                    additional_queries=additional_queries)
         self.send_command(command)
-        self.response_buffor[tag] = AsynchronousResponseCollector(
-            command)
+        self.response_buffor[tag] = AsynchronousResponse(command=command)
         return tag
 
     def get_command(self, path, command, arguments=None, queries=None,
@@ -50,7 +49,7 @@ class ApiCommunicatorBase(object):
             raise exceptions.RouterOsApiCommunicationError(
                 message, response.error)
         else:
-            return response.attributes
+            return response
 
     def process_single_response(self):
         response = self.receive_single_response()
@@ -75,11 +74,11 @@ class SingleResponse(object):
         asynchronous_response = buffor[self.response.tag]
         if self.response.type == b're':
             attributes = self.response.attributes
-            asynchronous_response.attributes.append(attributes)
+            asynchronous_response.append(attributes)
         if self.response.type == b'done':
             asynchronous_response.done = True
             attributes = self.response.attributes
-            asynchronous_response.attributes.done_message = attributes
+            asynchronous_response.done_message = attributes
         elif self.response.type == b'trap':
             asynchronous_response.error = self.response.attributes[b'message']
         elif self.response.type == b'fatal':
@@ -89,20 +88,17 @@ class SingleResponse(object):
             raise exceptions.RouterOsApiFatalCommunicationError(message)
 
 
-class AsynchronousResponseCollector(object):
-    def __init__(self, command):
-        self.attributes = AsynchronousResponse()
-        self.done = False
-        self.error = None
-        self.command = command
-
-
 class AsynchronousResponse(list):
     def __init__(self, *args, **kwargs):
+        self.command = kwargs.pop('command')
         super(AsynchronousResponse, self).__init__(*args, **kwargs)
         self.done_message = {}
+        self.done = False
+        self.error = None
 
     def map(self, function):
-        result = type(self)(function(item) for item in self)
+        result = type(self)(map(function, self), command=self.command)
         result.done_message = function(self.done_message)
+        result.done = self.done
+        result.error = self.error
         return result
