@@ -54,31 +54,39 @@ class ApiCommunicatorBase(object):
 
     def process_single_response(self):
         response = self.receive_single_response()
-        if response.tag not in self.response_buffor:
-            raise exceptions.FatalRouterOsApiError(
-                "Unknown tag %s", response.tag)
-        asynchronous_response = self.response_buffor[response.tag]
-        if response.type == b're':
-            attributes = response.attributes
-            asynchronous_response.attributes.append(attributes)
-        if response.type == b'done':
-            asynchronous_response.done = True
-            attributes = response.attributes
-            asynchronous_response.attributes.done_message = attributes
-        elif response.type == b'trap':
-            asynchronous_response.error = response.attributes[b'message']
-        elif response.type == b'fatal':
-            del(self.response_buffor[response.tag])
-            message = "Fatal error executing command {command}".format(
-                command=asynchronous_response.command)
-            raise exceptions.RouterOsApiFatalCommunicationError(message)
+        response.save_to_buffor(self.response_buffor)
 
     def receive_single_response(self):
         serialized = []
         while not serialized:
             serialized = self.base.receive_sentence()
-        response = sentence.ResponseSentence.parse(serialized)
-        return response
+        response_sentence = sentence.ResponseSentence.parse(serialized)
+        return SingleResponse(response_sentence)
+
+
+class SingleResponse(object):
+    def __init__(self, response_sentence):
+        self.response = response_sentence
+
+    def save_to_buffor(self, buffor):
+        if self.response.tag not in buffor:
+            raise exceptions.FatalRouterOsApiError(
+                "Unknown tag %s", self.response.tag)
+        asynchronous_response = buffor[self.response.tag]
+        if self.response.type == b're':
+            attributes = self.response.attributes
+            asynchronous_response.attributes.append(attributes)
+        if self.response.type == b'done':
+            asynchronous_response.done = True
+            attributes = self.response.attributes
+            asynchronous_response.attributes.done_message = attributes
+        elif self.response.type == b'trap':
+            asynchronous_response.error = self.response.attributes[b'message']
+        elif self.response.type == b'fatal':
+            del(buffor[self.response.tag])
+            message = "Fatal error executing command {command}".format(
+                command=asynchronous_response.command)
+            raise exceptions.RouterOsApiFatalCommunicationError(message)
 
 
 class AsynchronousResponseCollector(object):
