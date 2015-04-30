@@ -15,5 +15,5 @@ class ExceptionHandler(object):
 
     def _handle_communication_exception(self, exception):
         for message_re, exception_class in self.message_to_class_map:
-            if re.match(message_re, exception.original_message):
+            if re.search(message_re, exception.original_message):
                 raise exception_class(exception, exception.original_message)
