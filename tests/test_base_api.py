@@ -3,7 +3,7 @@ from unittest import TestCase
 from routeros_api import exceptions
 
 try:
-    from unitetest import mock
+    from unittest import mock
 except ImportError:
     import mock
 

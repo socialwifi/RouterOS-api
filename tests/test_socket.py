@@ -2,7 +2,7 @@ import socket
 from unittest import TestCase
 
 try:
-    from unitetest import mock
+    from unittest import mock
 except ImportError:
     import mock
 
