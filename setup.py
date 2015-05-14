@@ -1,7 +1,7 @@
 #!/usr/bin/env python                                                                                                                                        
 from setuptools import setup, find_packages
 
-setup(version='0.11',
+setup(version='0.12',
       name="RouterOS-api",
       description='Python API to RouterBoard devices produced by MikroTik.',
       author='Tomasz Wysocki',
@@ -9,4 +9,5 @@ setup(version='0.11',
       packages=find_packages(),
       test_suite="tests",
       license="MIT",
+      install_requires=['six'],
 )

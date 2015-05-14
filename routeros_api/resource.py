@@ -78,6 +78,9 @@ class TypedPromiseDecorator(object):
         self.inner = inner
         self.structure = structure
 
+    def __iter__(self):
+        return map(self.transform_dictionary, self.inner)
+
     def get(self):
         response = self.inner.get()
         return response.map(self.transform_dictionary)

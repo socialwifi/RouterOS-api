@@ -31,6 +31,9 @@ class EncodedPromiseDecorator(object):
         response = self.inner.get()
         return response.map(self.transform_row)
 
+    def __iter__(self):
+        return map(self.transform_row, self.inner)
+
     def transform_row(self, row):
         return dict(self.transform_item(item) for item in row.items())
 

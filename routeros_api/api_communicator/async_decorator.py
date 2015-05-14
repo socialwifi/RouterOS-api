@@ -16,3 +16,6 @@ class ResponsePromise(object):
         if self.response is None:
             self.response = self.receiver.receive(self.tag)
         return self.response
+
+    def __iter__(self):
+        return self.receiver.receive_iterator(self.tag)
