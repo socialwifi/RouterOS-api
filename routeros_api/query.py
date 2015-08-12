@@ -43,6 +43,7 @@ class OperatorQuery(object):
             formated.extend(other.get_api_format())
         operators_count = (len(self.others) - 1)
         formated.append(b'?#' + self.operator * operators_count)
+        return formated
 
 
 class OrQuery(OperatorQuery):
