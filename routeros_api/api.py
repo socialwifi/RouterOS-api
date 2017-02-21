@@ -9,8 +9,8 @@ from routeros_api import exceptions
 from routeros_api import resource
 
 
-def connect(host, username='admin', password='', port=8728):
-    return RouterOsApiPool(host, username, password, port).get_api()
+def connect(host, username='admin', password='', port=8728, ca_cert=None):
+    return RouterOsApiPool(host, username, password, port, ca_cert).get_api()
 
 
 class RouterOsApiPool(object):
