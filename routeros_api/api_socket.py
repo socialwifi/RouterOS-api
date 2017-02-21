@@ -7,7 +7,7 @@ except ImportError:
 
 EINTR = getattr(errno, 'EINTR', 4)
 
-def get_socket(hostname, port, timeout=15.0):
+def get_socket(hostname, port, ca_cert=None, timeout=15.0):
     api_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     api_socket.settimeout(timeout)
     while True:
@@ -19,6 +19,11 @@ def get_socket(hostname, port, timeout=15.0):
         else:
             break
     set_keepalive(api_socket, after_idle_sec=10)
+    if ca_cert:
+        context = ssl.create_default_context(cafile=ca_cert)
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.check_hostname = False
+        api_soket = context.wrap_socket(s)
     return SocketWrapper(api_socket)
 
 # http://stackoverflow.com/a/14855726
