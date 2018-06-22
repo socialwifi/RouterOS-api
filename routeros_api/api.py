@@ -9,18 +9,20 @@ from routeros_api import exceptions
 from routeros_api import resource
 
 
-def connect(host, username='admin', password='', port=8728):
-    return RouterOsApiPool(host, username, password, port).get_api()
+def connect(host, username='admin', password='', port=8728, force_old_login=False):
+    return RouterOsApiPool(host, username, password, port, force_old_login).get_api()
 
 
 class RouterOsApiPool(object):
     socket_timeout = 15.
 
-    def __init__(self, host, username='admin', password='', port=8728):
+    def __init__(self, host, username='admin', password='', port=8728, force_old_login=False):
         self.host = host
         self.username = username
         self.password = password
         self.port = port
+        # Don't send the new-style login (can expose password in plaintext!)
+        self.force_old_login = force_old_login
         self.connected = False
         self.socket = api_socket.DummySocket()
         self.communication_exception_parser = (
@@ -35,7 +37,7 @@ class RouterOsApiPool(object):
             self.api = RouterOsApi(communicator)
             for handler in self._get_exception_handlers():
                 communicator.add_exception_handler(handler)
-            self.api.login(self.username, self.password)
+            self.api.login(self.username, self.password, self.force_old_login)
             self.connected = True
         return self.api
 
@@ -57,16 +59,21 @@ class RouterOsApi(object):
     def __init__(self, communicator):
         self.communicator = communicator
 
-    def login(self, login, password):
-        response = self.get_binary_resource('/').call('login')
-        token = binascii.unhexlify(response.done_message['ret'])
-        hasher = hashlib.md5()
-        hasher.update(b'\x00')
-        hasher.update(password.encode())
-        hasher.update(token)
-        hashed = b'00' + hasher.hexdigest().encode('ascii')
-        self.get_binary_resource('/').call(
-            'login', {'name': login.encode(), 'response': hashed})
+    def login(self, login, password, force_old_login):
+        response = None
+        if force_old_login:
+            response = self.get_binary_resource('/').call('login')
+        else:
+            response = self.get_binary_resource('/').call('login',{ 'name': login, 'password': password })
+        if 'ret' in response.done_message:
+            token = binascii.unhexlify(response.done_message['ret'])
+            hasher = hashlib.md5()
+            hasher.update(b'\x00')
+            hasher.update(password.encode())
+            hasher.update(token)
+            hashed = b'00' + hasher.hexdigest().encode('ascii')
+            self.get_binary_resource('/').call(
+                'login', {'name': login.encode(), 'response': hashed})
 
     def get_resource(self, path, structure=None):
         structure = structure or api_structure.default_structure
