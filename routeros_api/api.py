@@ -9,20 +9,20 @@ from routeros_api import exceptions
 from routeros_api import resource
 
 
-def connect(host, username='admin', password='', port=8728, force_old_login=False):
-    return RouterOsApiPool(host, username, password, port, force_old_login).get_api()
+def connect(host, username='admin', password='', port=8728, insecure_login=False):
+    return RouterOsApiPool(host, username, password, port, insecure_login).get_api()
 
 
 class RouterOsApiPool(object):
     socket_timeout = 15.
 
-    def __init__(self, host, username='admin', password='', port=8728, force_old_login=False):
+    def __init__(self, host, username='admin', password='', port=8728, insecure_login=False):
         self.host = host
         self.username = username
         self.password = password
         self.port = port
         # Don't send the new-style login (can expose password in plaintext!)
-        self.force_old_login = force_old_login
+        self.insecure_login = insecure_login
         self.connected = False
         self.socket = api_socket.DummySocket()
         self.communication_exception_parser = (
@@ -37,7 +37,7 @@ class RouterOsApiPool(object):
             self.api = RouterOsApi(communicator)
             for handler in self._get_exception_handlers():
                 communicator.add_exception_handler(handler)
-            self.api.login(self.username, self.password, self.force_old_login)
+            self.api.login(self.username, self.password, self.insecure_login)
             self.connected = True
         return self.api
 
@@ -59,12 +59,12 @@ class RouterOsApi(object):
     def __init__(self, communicator):
         self.communicator = communicator
 
-    def login(self, login, password, force_old_login):
+    def login(self, login, password, insecure_login):
         response = None
-        if force_old_login:
-            response = self.get_binary_resource('/').call('login')
-        else:
+        if insecure_login:
             response = self.get_binary_resource('/').call('login',{ 'name': login, 'password': password })
+        else:
+            response = self.get_binary_resource('/').call('login')
         if 'ret' in response.done_message:
             token = binascii.unhexlify(response.done_message['ret'])
             hasher = hashlib.md5()
