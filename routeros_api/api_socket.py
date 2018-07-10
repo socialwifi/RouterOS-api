@@ -24,11 +24,9 @@ def get_socket(hostname, port, use_ssl=False, ssl_verify=True, ssl_verify_hostna
     if ssl_context is None and use_ssl:
         ssl_context = ssl.create_default_context()
         if ssl_verify:
-            # Verify certificate and hostname matches
             ssl_context.check_hostname = ssl_verify_hostname
             ssl_context.verify_mode = ssl.CERT_REQUIRED
         else:
-            # Don't verify certificate or a match
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
     if ssl_context is not None:

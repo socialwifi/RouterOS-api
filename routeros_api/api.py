@@ -20,28 +20,17 @@ class RouterOsApiPool(object):
         self.host = host
         self.username = username
         self.password = password
-        # Optional user-defined SSL context
+
         self.ssl_context = ssl_context
         # Use SSL? Ignored when using a context, so we will set it for simple reference when port-switching:
         if ssl_context is not None:
             self.use_ssl = True
         else:
             self.use_ssl = use_ssl
-        # Verify SSL certificate?
         self.ssl_verify = ssl_verify
-        # Verify SSL hostname? (Ignored if certificate verification disabled)
         self.ssl_verify_hostname = ssl_verify_hostname
         
-        # Port auto-switching dependent on SSL
-        if port is None and self.use_ssl:
-            # Default SSL port - 8729
-            self.port = 8729
-        elif port is None:
-            # Default non-SSL port - 8728
-            self.port = 8728
-        else:
-            # User-provided port
-            self.port = port
+        self.port = port or self._select_default_port(use_ssl)
 
         self.connected = False
         self.socket = api_socket.DummySocket()
@@ -73,6 +62,12 @@ class RouterOsApiPool(object):
     def _get_exception_handlers(self):
         yield CloseConnectionExceptionHandler(self)
         yield self.communication_exception_parser
+
+    def _select_default_port(self, use_ssl):
+        if use_ssl:
+            return 8729
+        else:
+            return 8728
 
 
 class RouterOsApi(object):
