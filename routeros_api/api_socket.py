@@ -1,4 +1,5 @@
 import socket
+import ssl
 from routeros_api import exceptions
 try:
     import errno
@@ -7,7 +8,7 @@ except ImportError:
 
 EINTR = getattr(errno, 'EINTR', 4)
 
-def get_socket(hostname, port, timeout=15.0):
+def get_socket(hostname, port, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None, timeout=15.0):
     api_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     api_socket.settimeout(timeout)
     while True:
@@ -19,6 +20,17 @@ def get_socket(hostname, port, timeout=15.0):
         else:
             break
     set_keepalive(api_socket, after_idle_sec=10)
+    # A provided ssl_context overrides any options
+    if ssl_context is None and use_ssl:
+        ssl_context = ssl.create_default_context()
+        if ssl_verify:
+            ssl_context.check_hostname = ssl_verify_hostname
+            ssl_context.verify_mode = ssl.CERT_REQUIRED
+        else:
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+    if ssl_context is not None:
+        api_socket = ssl_context.wrap_socket(api_socket,server_hostname=hostname)
     return SocketWrapper(api_socket)
 
 # http://stackoverflow.com/a/14855726

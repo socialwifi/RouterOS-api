@@ -9,18 +9,29 @@ from routeros_api import exceptions
 from routeros_api import resource
 
 
-def connect(host, username='admin', password='', port=8728):
-    return RouterOsApiPool(host, username, password, port).get_api()
+def connect(host, username='admin', password='', port=None, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None):
+    return RouterOsApiPool(host, username, password, port, use_ssl, ssl_verify, ssl_verify_hostname, ssl_context).get_api()
 
 
 class RouterOsApiPool(object):
-    socket_timeout = 15.
+    socket_timeout = 15.0
 
-    def __init__(self, host, username='admin', password='', port=8728):
+    def __init__(self, host, username='admin', password='', port=None, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None):
         self.host = host
         self.username = username
         self.password = password
-        self.port = port
+
+        self.ssl_context = ssl_context
+        # Use SSL? Ignored when using a context, so we will set it for simple reference when port-switching:
+        if ssl_context is not None:
+            self.use_ssl = True
+        else:
+            self.use_ssl = use_ssl
+        self.ssl_verify = ssl_verify
+        self.ssl_verify_hostname = ssl_verify_hostname
+        
+        self.port = port or self._select_default_port(use_ssl)
+
         self.connected = False
         self.socket = api_socket.DummySocket()
         self.communication_exception_parser = (
@@ -29,7 +40,7 @@ class RouterOsApiPool(object):
     def get_api(self):
         if not self.connected:
             self.socket = api_socket.get_socket(self.host, self.port,
-                                                timeout=self.socket_timeout)
+                                                timeout=self.socket_timeout, use_ssl=self.use_ssl, ssl_verify=self.ssl_verify, ssl_verify_hostname=self.ssl_verify_hostname, ssl_context=self.ssl_context)
             base = base_api.Connection(self.socket)
             communicator = api_communicator.ApiCommunicator(base)
             self.api = RouterOsApi(communicator)
@@ -51,6 +62,12 @@ class RouterOsApiPool(object):
     def _get_exception_handlers(self):
         yield CloseConnectionExceptionHandler(self)
         yield self.communication_exception_parser
+
+    def _select_default_port(self, use_ssl):
+        if use_ssl:
+            return 8729
+        else:
+            return 8728
 
 
 class RouterOsApi(object):
