@@ -30,7 +30,7 @@ class RouterOsApiPool(object):
         self.ssl_verify = ssl_verify
         self.ssl_verify_hostname = ssl_verify_hostname
         
-        self.port = port or self._select_default_port(use_ssl)
+        self.port = port or self._select_default_port(self.use_ssl)
 
         self.connected = False
         self.socket = api_socket.DummySocket()
