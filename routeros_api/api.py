@@ -16,12 +16,12 @@ def connect(host, username='admin', password='', port=None, insecure_login=False
 class RouterOsApiPool(object):
     socket_timeout = 15.0
 
-    def __init__(self, host, username='admin', password='', port=None, insecure_login=False, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None):
+    def __init__(self, host, username='admin', password='', port=None, plaintext_login=False, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None):
         self.host = host
         self.username = username
         self.password = password
-        # Don't send the new-style login (can expose password in plaintext!)
-        self.insecure_login = insecure_login
+
+        self.plaintext_login = plaintext_login
 
         self.ssl_context = ssl_context
         # Use SSL? Ignored when using a context, so we will set it for simple reference when port-switching:
@@ -48,7 +48,7 @@ class RouterOsApiPool(object):
             self.api = RouterOsApi(communicator)
             for handler in self._get_exception_handlers():
                 communicator.add_exception_handler(handler)
-            self.api.login(self.username, self.password, self.insecure_login)
+            self.api.login(self.username, self.password, self.plaintext_login)
             self.connected = True
         return self.api
 
@@ -76,9 +76,9 @@ class RouterOsApi(object):
     def __init__(self, communicator):
         self.communicator = communicator
 
-    def login(self, login, password, insecure_login):
+    def login(self, login, password, plaintext_login):
         response = None
-        if insecure_login:
+        if plaintext_login:
             response = self.get_binary_resource('/').call('login',{ 'name': login, 'password': password })
         else:
             response = self.get_binary_resource('/').call('login')
