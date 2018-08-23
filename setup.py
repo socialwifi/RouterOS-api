@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="RouterOS-api",
-    version='0.14.dev0',
+    version='0.15.0',
     description='Python API to RouterBoard devices produced by MikroTik.',
     author='Social WiFi',
     author_email='it@socialwifi.com',

@@ -1,8 +1,8 @@
 Changelog for RouterOS-api
 ==========================
 
-0.15 (unreleased)
-------------------
+0.15.0 (2018-08-23)
+-------------------
 
 - Support new login API for v6.43. ([#29](https://github.com/socialwifi/RouterOS-api/issues/29))
   
