@@ -1,6 +1,12 @@
+import sys
+
 from setuptools import find_packages
 from setuptools import setup
 
+requirements = ['six']
+
+if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 3):
+    requirements.append('ipaddress')
 
 def get_long_description():
     with open('README.md') as readme_file:
@@ -19,7 +25,7 @@ setup(
     packages=find_packages(),
     test_suite="tests",
     license="MIT",
-    install_requires=['six'],
+    install_requires=requirements,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
