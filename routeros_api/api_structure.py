@@ -49,7 +49,7 @@ class TimedeltaField:
         if bytes == b'none':
             return None
         else:
-            return utils.parse_mikrotik_timedelta(bytes.decode())
+            return parse_mikrotik_timedelta(bytes.decode())
 
 
 def parse_mikrotik_timedelta(time_string):
