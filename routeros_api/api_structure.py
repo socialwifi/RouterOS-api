@@ -1,10 +1,29 @@
+import abc
 import collections
 import datetime
 import ipaddress
 import re
 
 
-class StringField(object):
+class Field(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def get_mikrotik_value(self, arg):
+        """
+        :rtype: bytes
+        """
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_python_value(self, bytes):
+        """
+        :type bytes: bytes
+        """
+        raise NotImplementedError()
+
+
+class StringField(Field):
     def get_mikrotik_value(self, string):
         return string.encode()
 
@@ -12,7 +31,7 @@ class StringField(object):
         return bytes.decode()
 
 
-class BytesField:
+class BytesField(Field):
     def get_mikrotik_value(self, bytes):
         return bytes
 
@@ -20,7 +39,7 @@ class BytesField:
         return bytes
 
 
-class BooleanField:
+class BooleanField(Field):
     def get_mikrotik_value(self, condition):
         return b'yes' if condition else b'no'
 
@@ -29,7 +48,7 @@ class BooleanField:
         return bytes in (b'yes', b'true')
 
 
-class IntegerField:
+class IntegerField(Field):
     def get_mikrotik_value(self, number):
         return str(number).encode()
 
@@ -37,7 +56,7 @@ class IntegerField:
         return int(bytes.decode())
 
 
-class TimedeltaField:
+class TimedeltaField(Field):
     def get_mikrotik_value(self, timedelta):
         if timedelta is None:
             return b'none'
@@ -49,31 +68,30 @@ class TimedeltaField:
         if bytes == b'none':
             return None
         else:
-            return parse_mikrotik_timedelta(bytes.decode())
+            return self.parse_mikrotik_timedelta(bytes.decode())
+
+    def parse_mikrotik_timedelta(self, time_string):
+        new_timedelta_format = (
+            r'^((?P<weeks>\d+)w)?((?P<days>\d+)d)?'
+            r'((?P<hours>\d+)h)?((?P<minutes>\d+)m)?((?P<seconds>\d+)s)?'
+            r'((?P<milliseconds>\d+)ms)?$')
+        old_timedelta_format = (
+            r'^((?P<weeks>\d+)w)?((?P<days>\d+)d)?'
+            r'(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+)'
+            r'(\.(?P<milliseconds>\d+))?$')
+
+        match = re.match(new_timedelta_format, time_string)
+        if not match:
+            match = re.match(old_timedelta_format, time_string)
+        if match:
+            groups = dict((k, int(v)) for k, v in match.groupdict('0').items())
+            return datetime.timedelta(**groups)
+        else:
+            raise ValueError('{} does not match any mikrotik uptime format'
+                             .format(time_string))
 
 
-def parse_mikrotik_timedelta(time_string):
-    new_timedelta_format = (
-        r'^((?P<weeks>\d+)w)?((?P<days>\d+)d)?'
-        r'((?P<hours>\d+)h)?((?P<minutes>\d+)m)?((?P<seconds>\d+)s)?'
-        r'((?P<milliseconds>\d+)ms)?$')
-    old_timedelta_format = (
-        r'^((?P<weeks>\d+)w)?((?P<days>\d+)d)?'
-        r'(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+)'
-        r'(\.(?P<milliseconds>\d+))?$')
-
-    match = re.match(new_timedelta_format, time_string)
-    if not match:
-        match = re.match(old_timedelta_format, time_string)
-    if match:
-        groups = dict((k, int(v)) for k, v in match.groupdict('0').items())
-        return datetime.timedelta(**groups)
-    else:
-        raise ValueError('{} does not match any mikrotik uptime format'
-                         .format(time_string))
-
-
-class IpNetworkField:
+class IpNetworkField(Field):
     def get_mikrotik_value(self, ip_network):
         if ip_network:
             return str(ip_network).encode()
@@ -86,9 +104,10 @@ class IpNetworkField:
         else:
             return None
 
-class ListField:
+
+class ListField(Field):
     def __init__(self, subfield):
-        self.subfield=subfield
+        self.subfield = subfield
 
     def get_mikrotik_value(self, objects):
         return b','.join(
