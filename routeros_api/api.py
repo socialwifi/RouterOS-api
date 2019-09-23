@@ -1,5 +1,6 @@
 import hashlib
 import binascii
+from six import string_types
 from routeros_api import api_communicator
 from routeros_api import communication_exception_parsers
 from routeros_api import api_socket
@@ -79,6 +80,10 @@ class RouterOsApi(object):
     def login(self, login, password, plaintext_login):
         response = None
         if plaintext_login:
+            if isinstance(login, string_types):
+                login = login.encode()
+            if isinstance(password, string_types):
+                password = password.encode()
             response = self.get_binary_resource('/').call('login',{ 'name': login, 'password': password })
         else:
             response = self.get_binary_resource('/').call('login')

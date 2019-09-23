@@ -4,7 +4,7 @@ Changelog for RouterOS-api
 0.15.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix bug with plain text login using string credentials ([#47](https://github.com/socialwifi/RouterOS-api/issues/47))
 
 
 0.15.0 (2018-08-23)
