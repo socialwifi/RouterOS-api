@@ -1,6 +1,12 @@
 Changelog for RouterOS-api
 ==========================
 
+0.16.1 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
 0.16.0 (2019-09-24)
 -------------------
 
