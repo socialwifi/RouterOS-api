@@ -5,6 +5,8 @@ Changelog for RouterOS-api
 -------------------
 
 - Fix bug with plain text login using string credentials ([#47](https://github.com/socialwifi/RouterOS-api/issues/47))
+- Add support for new Python versions
+- Drop end-of-life Python versions
 
 
 0.15.0 (2018-08-23)
