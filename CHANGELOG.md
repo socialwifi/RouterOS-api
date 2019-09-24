@@ -1,7 +1,7 @@
 Changelog for RouterOS-api
 ==========================
 
-0.16.1 (unreleased)
+0.17.0 (2019-09-24)
 -------------------
 
 - Add missing types of field to api_structure
