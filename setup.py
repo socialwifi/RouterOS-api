@@ -9,7 +9,7 @@ def get_long_description():
 
 setup(
     name="RouterOS-api",
-    version='0.15.1.dev0',
+    version='0.16.0',
     description='Python API to RouterBoard devices produced by MikroTik.',
     long_description=get_long_description(),
     long_description_content_type='text/markdown',
