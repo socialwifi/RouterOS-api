@@ -1,7 +1,4 @@
-RouterOS-api
-============
-
-Python API to RouterBoard devices produced by MikroTik.
+# RouterOS-api
 
 [![Build Status](https://travis-ci.org/socialwifi/RouterOS-api.svg?branch=master)](https://travis-ci.org/socialwifi/RouterOS-api)
 [![Latest Version](https://img.shields.io/pypi/v/RouterOS-api.svg)](https://pypi.python.org/pypi/RouterOS-api/)
@@ -9,11 +6,9 @@ Python API to RouterBoard devices produced by MikroTik.
 [![Wheel Status](https://img.shields.io/pypi/wheel/RouterOS-api.svg)](https://pypi.python.org/pypi/RouterOS-api/)
 [![License](https://img.shields.io/pypi/l/RouterOS-api.svg)](https://github.com/socialwifi/RouterOS-api/blob/master/LICENSE)
 
-## Welcome to RouterOs Api
+Python API to RouterBoard devices produced by [MikroTik](https://mikrotik.com/) written by [Social WiFi](https://socialwifi.com).
 
-![RouterOs Api](https://static.socialwifi.com/cloud/1/images/logo.svg)
-
-Python API to RouterBoard devices produced by MikroTik.
+[![Social WiFi logo](https://static.socialwifi.com/cloud/1/images/logo.svg)](https://socialwifi.com)
 
 ## Usage
 
