@@ -236,7 +236,7 @@ Now, let's use `count-only`.
 CLI: `/ip/dhcp-server/lease/print count-only` (returns 13)
 
 ```python
->>> api.get_resource('/ip/dhcp-server/lease').call('print', {'count-only': ''}).done_message
+>>> api.get_resource('/ip/dhcp-server/lease').call('print', {'count-only': None}).done_message
 
 {'ret': '13'}
 ```
@@ -246,7 +246,7 @@ Now, let's use `count-only` and `where`.
 CLI: `/ip/dhcp-server/lease/print count-only where server=developers` (returns 4)
 
 ```python
->>> api.get_resource('/ip/dhcp-server/lease').call('print', {'count-only': ''}, {'server': 'developers'}).done_message
+>>> api.get_resource('/ip/dhcp-server/lease').call('print', {'count-only': None}, {'server': 'developers'}).done_message
 
 {'ret': '4'}
 ```
@@ -256,7 +256,7 @@ Now, let's use `count-only` and `where` with boolean value.
 CLI: `/ip/route/pri count-only where static` (returns 1)
 
 ```python
->>> api.get_resource('/ip/route').call('print', {'count-only': ''}, {'static': 'yes'}).done_message
+>>> api.get_resource('/ip/route').call('print', {'count-only': None}, {'static': 'yes'}).done_message
 
 {'ret': '1'}
 ```
@@ -281,7 +281,7 @@ True
 CLI command: `/interface/ethernet/poe/monitor numbers=0 once`
 
 ```python
->>> response = api.get_resource('/interface/ether/poe').call('monitor', {'numbers': '0', 'once': ''})
+>>> response = api.get_resource('/interface/ether/poe').call('monitor', {'numbers': '0', 'once': None})
 >>> response
 [{'name': 'ether10', 'poe-out': 'auto-on', 'poe-out-status': 'waiting-for-load'}]
 ```

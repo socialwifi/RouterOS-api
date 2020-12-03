@@ -73,6 +73,22 @@ class TestCommunicator(TestCase):
         base.send_sentence.assert_called_once_with(
             [b'/interface/set', b'=x=y', b'.tag=1'])
 
+    def test_call_with_arguments(self):
+        base = mock.Mock()
+        base.receive_sentence.return_value = [b'!done', b'.tag=1']
+        communicator = api_communicator.ApiCommunicator(base)
+        communicator.call('/interface/monitor-traffic/', 'monitor', {'interface': 'ether1'})
+        base.send_sentence.assert_called_once_with(
+            [b'/interface/monitor-traffic/monitor', b'=interface=ether1', b'.tag=1'])
+
+    def test_call_without_arguments(self):
+        base = mock.Mock()
+        base.receive_sentence.return_value = [b'!done', b'.tag=1']
+        communicator = api_communicator.ApiCommunicator(base)
+        communicator.call('/interface/monitor-traffic/', 'monitor', {'once': None})
+        base.send_sentence.assert_called_once_with(
+            [b'/interface/monitor-traffic/monitor', b'=once', b'.tag=1'])
+
     def test_async_error_raises_when_synchronizing(self):
         base = mock.Mock()
         base.receive_sentence.side_effect = [
