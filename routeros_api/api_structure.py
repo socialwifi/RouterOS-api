@@ -32,7 +32,10 @@ class StringField(Field):
         try:
             return bytes.decode('utf-8')
         except:
-            return bytes.decode(chardet.detect(bytes)['encoding'])
+            try:
+                return bytes.decode('iso8859-1')
+            except:
+                return bytes.decode(chardet.detect(bytes)['encoding'])
 
 
 class BytesField(Field):
