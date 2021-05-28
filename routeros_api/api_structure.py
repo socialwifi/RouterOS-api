@@ -3,6 +3,7 @@ import collections
 import datetime
 import ipaddress
 import re
+import cchardet as chardet
 
 
 class Field(object):
@@ -28,7 +29,10 @@ class StringField(Field):
         return string.encode()
 
     def get_python_value(self, bytes):
-        return bytes.decode()
+        try:
+            return bytes.decode('utf-8')
+        except:
+            return bytes.decode(chardet.detect(bytes)['encoding'])
 
 
 class BytesField(Field):
