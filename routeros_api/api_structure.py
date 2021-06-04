@@ -29,13 +29,9 @@ class StringField(Field):
         return string.encode()
 
     def get_python_value(self, bytes):
-        try:
-            return bytes.decode('utf-8')
-        except:
-            try:
-                return bytes.decode('iso8859-1')
-            except:
-                return bytes.decode(chardet.detect(bytes)['encoding'])
+        if bytes:
+            return bytes.decode(chardet.detect(bytes)['encoding'])
+        return bytes.decode()
 
 
 class BytesField(Field):
