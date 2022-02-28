@@ -1,3 +1,4 @@
+import ipaddress
 import socket
 import ssl
 from routeros_api import exceptions
@@ -10,6 +11,11 @@ EINTR = getattr(errno, 'EINTR', 4)
 
 def get_socket(hostname, port, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None, timeout=15.0):
     api_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        if ipaddress.IPv6Address(unicode(hostname)):
+            api_socket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    except:
+        pass
     api_socket.settimeout(timeout)
     while True:
         try:
