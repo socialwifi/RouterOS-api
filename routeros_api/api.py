@@ -10,18 +10,19 @@ from routeros_api import exceptions
 from routeros_api import resource
 
 
-def connect(host, username='admin', password='', port=None, plaintext_login=False, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None):
-    return RouterOsApiPool(host, username, password, port, plaintext_login, use_ssl, ssl_verify, ssl_verify_hostname, ssl_context).get_api()
+def connect(host, username='admin', password='', port=None, plaintext_login=False, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None, proxy_socks_host=None, proxy_socks_port=None):
+    return RouterOsApiPool(host, username, password, port, plaintext_login, use_ssl, ssl_verify, ssl_verify_hostname, ssl_context, proxy_socks_host, proxy_socks_port).get_api()
 
 
 class RouterOsApiPool(object):
     socket_timeout = 15.0
 
-    def __init__(self, host, username='admin', password='', port=None, plaintext_login=False, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None):
+    def __init__(self, host, username='admin', password='', port=None, plaintext_login=False, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None, proxy_socks_host=None, proxy_socks_port=None):
         self.host = host
         self.username = username
         self.password = password
-
+        self.proxy_socks_host = proxy_socks_host
+        self.proxy_socks_port = proxy_socks_port
         self.plaintext_login = plaintext_login
 
         self.ssl_context = ssl_context
@@ -43,7 +44,7 @@ class RouterOsApiPool(object):
     def get_api(self):
         if not self.connected:
             self.socket = api_socket.get_socket(self.host, self.port,
-                                                timeout=self.socket_timeout, use_ssl=self.use_ssl, ssl_verify=self.ssl_verify, ssl_verify_hostname=self.ssl_verify_hostname, ssl_context=self.ssl_context)
+                                                timeout=self.socket_timeout, use_ssl=self.use_ssl, ssl_verify=self.ssl_verify, ssl_verify_hostname=self.ssl_verify_hostname, ssl_context=self.ssl_context, proxy_socks_host=self.proxy_socks_host, proxy_socks_port=self.proxy_socks_port)
             base = base_api.Connection(self.socket)
             communicator = api_communicator.ApiCommunicator(base)
             self.api = RouterOsApi(communicator)
