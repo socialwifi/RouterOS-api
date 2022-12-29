@@ -1,4 +1,5 @@
 import socket
+import socks
 import ssl
 from routeros_api import exceptions
 try:
@@ -8,8 +9,14 @@ except ImportError:
 
 EINTR = getattr(errno, 'EINTR', 4)
 
-def get_socket(hostname, port, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None, timeout=15.0):
-    api_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def get_socket(hostname, port, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None, timeout=15.0, proxy_socks_host=None, proxy_socks_port=None):
+
+    if proxy_socks_host and proxy_socks_port is not None:
+        socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, proxy_socks_host, proxy_socks_port)
+        socket.socket = socks.socksocket
+        api_socket = socks.socksocket(socket.AF_INET, socket.SOCK_STREAM)
+    else:
+        api_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     api_socket.settimeout(timeout)
     while True:
         try:
@@ -49,7 +56,6 @@ def set_keepalive(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
     if hasattr(socket, "TCP_KEEPCNT"):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
-
 
 class DummySocket(object):
     def close(self):

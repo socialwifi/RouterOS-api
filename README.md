@@ -35,6 +35,8 @@ routeros_api.RouterOsApiPool(
     ssl_verify=True,
     ssl_verify_hostname=True,
     ssl_context=None,
+    proxy_socks_host=None,
+    proxy_socks_port=None,
 )
 ```
 
@@ -52,6 +54,8 @@ Optional Parameters:
 * `ssl_verify` - Boolean - Verify the SSL certificate? - Default **True**
 * `ssl_verify_hostname` - Boolean - Verify the SSL certificate hostname matches? - Default **True**
 * `ssl_context` - Object - Pass in a custom SSL context object. Overrides other options. - Default **None**
+* `proxy_socks_host` - String - IP address for socks5 proxy - Default **None**
+* `proxy_socks_port` - Integer - Port number for socks5 proxy - Default **None**
 
 #### Using SSL
 
