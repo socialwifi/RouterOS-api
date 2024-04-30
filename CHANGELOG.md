@@ -4,6 +4,8 @@ Changelog for RouterOS-api
 0.18.0 (unreleased)
 -------------------
 
+- Drop support for end-of-life Python versions (2.7, 3.4, 3.5, 3.6, 3.7)
+- Add support for new Python versions (3.9, 3.10, 3.11, 3.12)
 - Add IPv6 support ([#88](https://github.com/socialwifi/RouterOS-api/pull/88))
 
 
