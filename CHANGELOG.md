@@ -1,10 +1,10 @@
 Changelog for RouterOS-api
 ==========================
 
-0.17.1 (unreleased)
+0.18.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add IPv6 support ([#88](https://github.com/socialwifi/RouterOS-api/pull/88))
 
 
 0.17.0 (2019-09-24)
