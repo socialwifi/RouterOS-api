@@ -1,7 +1,7 @@
 Changelog for RouterOS-api
 ==========================
 
-0.18.0 (unreleased)
+## 0.18.0 (2024-04-30)
 -------------------
 
 - Drop support for end-of-life Python versions (2.7, 3.4, 3.5, 3.6, 3.7)
