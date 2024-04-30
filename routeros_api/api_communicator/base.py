@@ -1,5 +1,3 @@
-import six
-
 from routeros_api import exceptions
 from routeros_api import sentence
 from routeros_api import query
@@ -92,7 +90,7 @@ class SingleResponse(object):
             raise exceptions.RouterOsApiFatalCommunicationError(message)
 
 
-class AsynchronousResponseIterator(six.Iterator):
+class AsynchronousResponseIterator:
     def __init__(self, response_buffor_manager):
         self.response_buffor_manager = response_buffor_manager
         self.index = 0

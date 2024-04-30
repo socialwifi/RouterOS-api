@@ -21,7 +21,7 @@ class TestSocketWrapper(TestCase):
 
 
 class TestGetSocket(TestCase):
-    @mock.patch('socket.socket')
+    @mock.patch('socket.create_connection')
     def test_with_interrupt(self, socket_build):
         connect = socket_build.return_value.connect
         connect.side_effect = [
@@ -32,7 +32,7 @@ class TestGetSocket(TestCase):
         connect.assert_has_calls([mock.call(('host', 123)),
                                   mock.call(('host', 123))])
 
-    @mock.patch('socket.socket')
+    @mock.patch('socket.create_connection')
     def test_with_other_error(self, socket_build):
         connect = socket_build.return_value.connect
         connect.side_effect = [

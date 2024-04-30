@@ -12,7 +12,6 @@ def get_socket(hostname, port, use_ssl=False, ssl_verify=True, ssl_verify_hostna
     while True:
         try:
             api_socket = socket.create_connection((hostname, port), timeout=timeout)
-            api_socket.connect((hostname, port))
         except socket.error as e:
             if e.args[0] != EINTR:
                 raise exceptions.RouterOsApiConnectionError(e)
