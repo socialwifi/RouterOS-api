@@ -179,7 +179,21 @@ list_queues.remove(id="*2")
 connection.disconnect()
 ```
 
-#### Other Example:
+### Run script and get output
+
+The example script only prints "hello". Here's a simplifed example of how to run it and get the output:
+
+```
+>>> api.get_resource("/system/script").get()[0]['source']
+'/put "hello"'
+>>> async_response = api.get_binary_resource('/').call('system/script/run', {"number": '0'.encode('utf-8')})
+>>> async_response.__dict__
+{'command': <routeros_api.sentence.CommandSentence object at 0x73a0f2b3eba0>, 'done_message': {'ret': b'hello'}, 'done': True, 'error': None}
+>>> async_response.done_message['ret']
+b'hello'
+```
+
+### Other Example:
 
 ```python
 list_address =  api.get_resource('/ip/firewall/address-list')
