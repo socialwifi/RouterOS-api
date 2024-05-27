@@ -6,7 +6,7 @@ from routeros_api import query
 
 response_re = re.compile(b'^!(re|trap|fatal|done)$')
 attribute_re = re.compile(b'^=([^=]+)=(.*)$', re.DOTALL)
-tag_re = re.compile(b'^\.tag=(.*)$')
+tag_re = re.compile(b'^\\.tag=(.*)$')
 
 
 class ResponseSentence(object):
