@@ -4,9 +4,9 @@ from routeros_api import exceptions
 from routeros_api import query
 
 
-response_re = re.compile(b'^!(re|trap|fatal|done)$')
-attribute_re = re.compile(b'^=([^=]+)=(.*)$', re.DOTALL)
-tag_re = re.compile(b'^\.tag=(.*)$')
+response_re = re.compile(rb'^!(re|trap|fatal|done)$')
+attribute_re = re.compile(rb'^=([^=]+)=(.*)$', re.DOTALL)
+tag_re = re.compile(rb'^\.tag=(.*)$')
 
 
 class ResponseSentence(object):
