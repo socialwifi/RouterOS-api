@@ -4,7 +4,9 @@ Changelog for RouterOS-api
 ## 0.18.1 (unreleased)
 ----------------------
 
-- Nothing changed yet.
+- Fix tests not being run with GitHub Actions.
+- Add linters.
+- Fix SyntaxWarning.
 
 
 ## 0.18.0 (2024-04-30)
