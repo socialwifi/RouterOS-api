@@ -1,7 +1,7 @@
 Changelog for RouterOS-api
 ==========================
 
-## 0.18.1 (unreleased)
+## 0.18.1 (2024-05-28)
 ----------------------
 
 - Fix tests not being run with GitHub Actions.
