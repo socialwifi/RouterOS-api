@@ -22,23 +22,25 @@ class TestSocketWrapper(TestCase):
 
 class TestGetSocket(TestCase):
     @mock.patch('socket.create_connection')
-    def test_with_interrupt(self, socket_build):
-        connect = socket_build.return_value.connect
-        connect.side_effect = [
+    def test_with_interrupt(self, create_connection_mock):
+        create_connection_mock.side_effect = [
             socket.error(api_socket.EINTR),
-            None
+            mock.Mock(),
         ]
         api_socket.get_socket('host', 123)
-        connect.assert_has_calls([mock.call(('host', 123)),
-                                  mock.call(('host', 123))])
+        create_connection_mock.assert_has_calls([
+            mock.call(('host', 123), timeout=15.0),
+            mock.call(('host', 123), timeout=15.0),
+        ])
 
     @mock.patch('socket.create_connection')
-    def test_with_other_error(self, socket_build):
-        connect = socket_build.return_value.connect
-        connect.side_effect = [
+    def test_with_other_error(self, create_connection_mock):
+        create_connection_mock.side_effect = [
             socket.error(1),
             None
         ]
         self.assertRaises(exceptions.RouterOsApiConnectionError,
                           api_socket.get_socket, 'host', 123)
-        connect.assert_has_calls([mock.call(('host', 123))])
+        create_connection_mock.assert_has_calls([
+            mock.call(('host', 123), timeout=15.0),
+        ])
