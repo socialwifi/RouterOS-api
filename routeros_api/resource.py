@@ -35,11 +35,11 @@ class RouterOsBinaryResource(object):
 
     def call(self, command, arguments=None, queries=None,
              additional_queries=()):
-        return self.call_async(command, arguments=arguments, queries=queries,
-            additional_queries=additional_queries).get()
+        return self.call_async(
+            command, arguments=arguments, queries=queries, additional_queries=additional_queries,
+        ).get()
 
-    def call_async(self, command, arguments=None, queries=None,
-             additional_queries=()):
+    def call_async(self, command, arguments=None, queries=None, additional_queries=()):
         return self.communicator.call(
             self.path, command, arguments=arguments, queries=queries,
             additional_queries=additional_queries)
@@ -53,8 +53,7 @@ class RouterOsResource(RouterOsBinaryResource):
         self.structure = structure
         super(RouterOsResource, self).__init__(communicator, path)
 
-    def call_async(self, command, arguments=None, queries=None,
-             additional_queries=()):
+    def call_async(self, command, arguments=None, queries=None, additional_queries=()):
         arguments = self.transform_dictionary(arguments or {})
         queries = self.transform_dictionary(queries or {})
         promise = self.communicator.call(

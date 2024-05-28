@@ -1,6 +1,6 @@
 from routeros_api import exceptions
-from routeros_api import sentence
 from routeros_api import query
+from routeros_api import sentence
 
 
 class ApiCommunicatorBase(object):
@@ -9,17 +9,14 @@ class ApiCommunicatorBase(object):
         self.tag = 0
         self.response_buffor = {}
 
-    def send(self, path, command, arguments=None, queries=None,
-                   additional_queries=()):
+    def send(self, path, command, arguments=None, queries=None, additional_queries=()):
         tag = self._get_next_tag()
-        command = self.get_command(path, command, arguments, queries, tag=tag,
-                                   additional_queries=additional_queries)
+        command = self.get_command(path, command, arguments, queries, tag=tag, additional_queries=additional_queries)
         self.send_command(command)
         self.response_buffor[tag] = AsynchronousResponse(command=command)
         return tag
 
-    def get_command(self, path, command, arguments=None, queries=None,
-                     tag=None, additional_queries=()):
+    def get_command(self, path, command, arguments=None, queries=None, tag=None, additional_queries=()):
         arguments = arguments or {}
         queries = queries or {}
         command = sentence.CommandSentence(path, command, tag=tag)
@@ -40,7 +37,7 @@ class ApiCommunicatorBase(object):
 
     def receive(self, tag):
         response_buffor_manager = AsynchronousResponseBufforManager(self, tag)
-        while(not response_buffor_manager.done):
+        while not response_buffor_manager.done:
             response_buffor_manager.step_to_finish_response()
         response_buffor_manager.clean()
         response = response_buffor_manager.response
@@ -84,7 +81,7 @@ class SingleResponse(object):
         elif self.response.type == b'trap':
             asynchronous_response.error = self.response.attributes[b'message']
         elif self.response.type == b'fatal':
-            del(buffor[self.response.tag])
+            del (buffor[self.response.tag])
             message = "Fatal error executing command {command}".format(
                 command=asynchronous_response.command)
             raise exceptions.RouterOsApiFatalCommunicationError(message)
@@ -132,7 +129,7 @@ class AsynchronousResponseBufforManager(object):
         return self.response.done
 
     def clean(self):
-        del(self.receiver.response_buffor[self.tag])
+        del (self.receiver.response_buffor[self.tag])
 
 
 class AsynchronousResponse(list):
@@ -153,7 +150,6 @@ class AsynchronousResponse(list):
                 message, self.error)
         else:
             return None
-
 
     def map(self, function):
         result = type(self)(map(function, self), command=self.command)

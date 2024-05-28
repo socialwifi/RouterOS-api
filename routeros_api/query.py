@@ -1,5 +1,6 @@
 from routeros_api import utils
 
+
 class BasicQuery(object):
     operator = None
 

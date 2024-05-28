@@ -9,7 +9,6 @@ from routeros_api import api_structure as structure
 from routeros_api import resource
 from routeros_api.api_communicator import base
 
-
 BYTES_STRUCTURE = {'bytes': structure.BytesField()}
 BOOLEAN_STRUCTURE = {'boolean': structure.BooleanField()}
 

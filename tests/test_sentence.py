@@ -1,12 +1,8 @@
 from unittest import TestCase
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 from routeros_api import exceptions
 from routeros_api import sentence
+
 
 class TestResponseSentence(TestCase):
     def test_done(self):
@@ -33,6 +29,7 @@ class TestResponseSentence(TestCase):
         response = sentence.ResponseSentence.parse([b'!trap', b'=message=b'])
         self.assertEqual(response.type, b'trap')
         self.assertEqual(response.attributes[b'message'], b'b')
+
 
 class TestCommandSentence(TestCase):
     def test_login_sentence(self):

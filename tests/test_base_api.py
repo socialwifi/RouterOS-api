@@ -93,14 +93,14 @@ class TestToBytes(TestCase):
 
 
 class TestConnection(TestCase):
-    def test_sending(self, ):
+    def test_sending(self):
         socket = mock.Mock()
         connection = base_api.Connection(socket)
         connection.send_sentence([b'foo', b'bar'])
         expected = [
             mock.call(b'\x03foo'),
             mock.call(b'\x03bar'),
-            mock.call(b'\x00')
+            mock.call(b'\x00'),
         ]
         self.assertEqual(expected, socket.send.mock_calls)
 

@@ -6,6 +6,7 @@ class AsyncApiCommunicator(object):
         tag = self.inner.send(*args, **kwargs)
         return ResponsePromise(self.inner, tag)
 
+
 class ResponsePromise(object):
     def __init__(self, receiver, tag):
         self.receiver = receiver

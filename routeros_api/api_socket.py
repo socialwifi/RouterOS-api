@@ -1,6 +1,8 @@
 import socket
 import ssl
+
 from routeros_api import exceptions
+
 try:
     import errno
 except ImportError:
@@ -8,7 +10,9 @@ except ImportError:
 
 EINTR = getattr(errno, 'EINTR', 4)
 
-def get_socket(hostname, port, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None, timeout=15.0):
+
+def get_socket(hostname, port, use_ssl=False, ssl_verify=True, ssl_verify_hostname=True, ssl_context=None,
+               timeout=15.0):
     while True:
         try:
             api_socket = socket.create_connection((hostname, port), timeout=timeout)
@@ -28,8 +32,9 @@ def get_socket(hostname, port, use_ssl=False, ssl_verify=True, ssl_verify_hostna
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
     if ssl_context is not None:
-        api_socket = ssl_context.wrap_socket(api_socket,server_hostname=hostname)
+        api_socket = ssl_context.wrap_socket(api_socket, server_hostname=hostname)
     return SocketWrapper(api_socket)
+
 
 # http://stackoverflow.com/a/14855726
 def set_keepalive(sock, after_idle_sec=1, interval_sec=3, max_fails=5):

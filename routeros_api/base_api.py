@@ -2,7 +2,6 @@ import socket
 
 from routeros_api import exceptions
 
-
 LENGTH_MATRIX = [
     (0x80, 0x0),
     (0x40, 0x80),

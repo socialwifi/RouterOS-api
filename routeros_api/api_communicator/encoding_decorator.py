@@ -2,8 +2,7 @@ class EncodingApiCommunicator(object):
     def __init__(self, inner):
         self.inner = inner
 
-    def call(self, path, command, arguments=None, queries=None,
-                   additional_queries=()):
+    def call(self, path, command, arguments=None, queries=None, additional_queries=()):
         path = path.encode()
         command = command.encode()
         arguments = self.transform_dictionary(arguments or {})

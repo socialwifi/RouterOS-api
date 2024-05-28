@@ -5,8 +5,9 @@ try:
 except ImportError:
     import mock
 
-from routeros_api import exceptions
 from routeros_api import api_communicator
+from routeros_api import exceptions
+
 
 class TestCommunicator(TestCase):
     def test_login_call(self):

@@ -3,7 +3,6 @@ import re
 from routeros_api import exceptions
 from routeros_api import query
 
-
 response_re = re.compile(rb'^!(re|trap|fatal|done)$')
 attribute_re = re.compile(rb'^=([^=]+)=(.*)$', re.DOTALL)
 tag_re = re.compile(rb'^\.tag=(.*)$')
@@ -25,7 +24,6 @@ class ResponseSentence(object):
             raise exceptions.RouterOsApiParsingError("Malformed sentence %s",
                                                      sentence)
         return response
-
 
     def parse_attributes(self, serialized_attributes):
         for serialized in serialized_attributes:
@@ -57,8 +55,8 @@ class CommandSentence(object):
         formated = [self.path + self.command]
         for key, value in self.attributes.items():
             formated.append(b'=' + key + b'=' + value)
-        for query in self.queries:
-            formated.extend(query.get_api_format())
+        for _query in self.queries:
+            formated.extend(_query.get_api_format())
         if self.tag is not None:
             formated.append(b'.tag=' + self.tag)
         return formated

@@ -1,4 +1,5 @@
 import socket
+
 from unittest import TestCase
 
 try:
@@ -9,13 +10,14 @@ except ImportError:
 from routeros_api import api_socket
 from routeros_api import exceptions
 
+
 class TestSocketWrapper(TestCase):
     def test_socket(self):
         inner = mock.Mock()
         wrapper = api_socket.SocketWrapper(inner)
         inner.recv.side_effect = [
             socket.error(api_socket.EINTR),
-            'bytes'
+            'bytes',
         ]
         self.assertEqual(wrapper.receive(5), 'bytes')
 
@@ -37,7 +39,7 @@ class TestGetSocket(TestCase):
     def test_with_other_error(self, create_connection_mock):
         create_connection_mock.side_effect = [
             socket.error(1),
-            None
+            None,
         ]
         self.assertRaises(exceptions.RouterOsApiConnectionError,
                           api_socket.get_socket, 'host', 123)

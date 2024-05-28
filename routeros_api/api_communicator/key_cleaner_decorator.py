@@ -31,6 +31,7 @@ def encode_key(key):
     else:
         return key
 
+
 def decode_dictionary(dictionary):
     return dict([(decode_key(key), value) for key, value in
                  dictionary.items()])
