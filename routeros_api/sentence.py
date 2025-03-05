@@ -3,7 +3,7 @@ import re
 from routeros_api import exceptions
 from routeros_api import query
 
-response_re = re.compile(rb'^!(re|trap|fatal|done)$')
+response_re = re.compile(rb'^!(re|trap|fatal|empty|done)$')
 attribute_re = re.compile(rb'^=([^=]+)=(.*)$', re.DOTALL)
 tag_re = re.compile(rb'^\.tag=(.*)$')
 
