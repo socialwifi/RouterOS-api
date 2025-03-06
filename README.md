@@ -19,9 +19,10 @@ Python API to RouterBoard devices produced by [MikroTik](https://mikrotik.com/) 
 
 import routeros_api
 
-connection = routeros_api.RouterOsApiPool('IP', username='admin', password='')
+connection = routeros_api.RouterOsApiPool('IP', username='admin', password='', plaintext_login=True)
 api = connection.get_api()
 ```
+Use `plaintext_login=True` option when connecting to RouterOS version 6.43 and newer.
 
 #### Connect Options
 
@@ -31,6 +32,7 @@ routeros_api.RouterOsApiPool(
     username='admin',
     password='',
     port=8728,
+    plaintext_login=True,
     use_ssl=False,
     ssl_verify=True,
     ssl_verify_hostname=True,
