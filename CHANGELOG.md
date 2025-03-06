@@ -1,10 +1,10 @@
 Changelog for RouterOS-api
 ==========================
 
-## 0.18.2 (unreleased)
+## 0.19.0 (unreleased)
 ----------------------
 
-- Nothing changed yet.
+- Add support for `!empty` reply word ([#103](https://github.com/socialwifi/RouterOS-api/pull/103))
 
 
 ## 0.18.1 (2024-05-28)
