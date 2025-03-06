@@ -49,6 +49,14 @@ class TestCommunicator(TestCase):
         self.assertRaises(exceptions.RouterOsApiCommunicationError,
                           promise.get)
 
+    def test_empty_call(self):
+        base = mock.Mock()
+        base.receive_sentence.side_effect = [[b'!empty', b'.tag=1'],
+                                             [b'!done', b'.tag=1']]
+        communicator = api_communicator.ApiCommunicator(base)
+        response = communicator.call('/file/', 'print').get()
+        self.assertEqual(response, [])
+
     def test_query_call(self):
         base = mock.Mock()
         base.receive_sentence.return_value = [b'!done', b'.tag=1']
