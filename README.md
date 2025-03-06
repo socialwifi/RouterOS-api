@@ -92,6 +92,31 @@ It is highly recommended only to use this option with SSL enabled.
 routeros_api.RouterOsApiPool(host, username='admin', password='', plaintext_login=True)
 ```
 
+#### Handling non UTF-8 characters
+
+The API does not assume any particular encoding, so non utf-8 characters will
+not be shown correctly.
+A default encoding can be specified if needed. For some cases the `latin-1` 
+encoding will be the best one to use, for others - `windows-1250` will work 
+better. 
+Ref. https://forum.mikrotik.com/viewtopic.php?t=106053#p528460
+
+It is possible to use specific encoding by defining custom default structure 
+like this:
+
+```python
+import collections
+import routeros_api
+from routeros_api.api_structure import StringField
+
+connection = routeros_api.RouterOsApiPool('ip', username='admin', password='password', plaintext_login=True)
+api = connection.get_api()
+# This part here is important:
+default_structure = collections.defaultdict(lambda: StringField(encoding='windows-1250'))
+api.get_resource('/system/identity', structure=default_structure).get()
+```
+
+
 ### Execute Commands
 
 Call this with a resource and parameters as name/value pairs.

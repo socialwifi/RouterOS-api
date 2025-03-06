@@ -103,7 +103,8 @@ class RouterOsApi(object):
                 'login', {'name': login.encode(), 'response': hashed})
 
     def get_resource(self, path, structure=None):
-        structure = structure or api_structure.default_structure
+        if structure is None:
+            structure = api_structure.default_structure
         return resource.RouterOsResource(self.communicator, path, structure)
 
     def get_binary_resource(self, path):
