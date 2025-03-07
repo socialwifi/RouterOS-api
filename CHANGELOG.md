@@ -1,7 +1,7 @@
 Changelog for RouterOS-api
 ==========================
 
-## 0.20.0 (unreleased)
+## 0.20.0 (2025-03-07)
 ----------------------
 
 - Fix decoding non utf-8 characters. Allow setting fallback encoding ([#104](https://github.com/socialwifi/RouterOS-api/pull/104)).
