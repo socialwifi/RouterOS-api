@@ -15,15 +15,13 @@ Python API to RouterBoard devices produced by [MikroTik](https://mikrotik.com/) 
 ### Connection
 
 ```python
-#!/usr/bin/python
-
 import routeros_api
 
 connection = routeros_api.RouterOsApiPool('IP', username='admin', password='')
 api = connection.get_api()
 ```
 
-#### Connect Options
+#### Connection parameters
 
 ```python
 routeros_api.RouterOsApiPool(
@@ -95,14 +93,21 @@ routeros_api.RouterOsApiPool(host, username='admin', password='', plaintext_logi
 Call this with a resource and parameters as name/value pairs.
 
 ```python
-api.get_binary_resource('/').call('<resource>',{ <dict of params> })
+api.get_resource('/').call('<resource>', { <dict of params> })
+```
+
+You can also use the "binary" version, but in this case, all dict values
+should be encoded to bytes and the result will be returned as bytes.
+
+```python
+api.get_binary_resource('/').call('<resource>', { <dict of params> })
 ```
 
 #### Examples
 
 ```python
-api.get_binary_resource('/').call('tool/fetch',{ 'url': "https://dummy.url" })
-api.get_binary_resource('/').call('ping', { 'address': '192.168.56.1', 'count': '4' })
+api.get_resource('/').call('tool/fetch', {'url': 'https://dummy.url'})
+api.get_resource('/').call('ping', {'address': '192.168.56.1', 'count': '4'})
 ```
 
 ### Fetch List/Resource
@@ -126,15 +131,15 @@ list_queues.get()
 ### Add rules
 
 ```python
-list.add(attribute="vale", attribute_n="value")
+list.add(attribute='vale', attribute_n='value')
 ```
 
-**NOTE**: Atributes with `-`, like `max-limit` use underscore `_`: `max_limit`
+**NOTE**: Attributes with `-`, like `max-limit` use underscore `_`: `max_limit`
 
 #### Example:
 
 ```python
-list_queues.add(name="001", max_limit="512k/4M", target="192.168.10.1/32")
+list_queues.add(name='001', max_limit='512k/4M', target='192.168.10.1/32')
 ```
 
 ### Update Values
@@ -146,7 +151,7 @@ list.set(id, attributes)
 #### Example:
 
 ```python
-list_queues.set(id="*2", name="jhon")
+list_queues.set(id='*2', name='john')
 ```
 
 ### Get element:
@@ -158,7 +163,7 @@ list.get(attribute=value)
 #### Example:
 
 ```python
-list_queues.get(name="jhon")
+list_queues.get(name='john')
 ```
 
 ### Remove element:
@@ -170,7 +175,7 @@ list.remove(id)
 #### Example:
 
 ```python
-list_queues.remove(id="*2")
+list_queues.remove(id='*2')
 ```
 
 ### Close conection:
@@ -181,25 +186,24 @@ connection.disconnect()
 
 ### Run script and get output
 
-The example script only prints "hello". Here's a simplifed example of how to run it and get the output:
+The example script only prints "hello". Here's a simplified example of how 
+to run it and get the output:
 
 ```
->>> api.get_resource("/system/script").get()[0]['source']
+>>> api.get_resource('/system/script').get()[0]['source']
 '/put "hello"'
->>> async_response = api.get_binary_resource('/').call('system/script/run', {"number": '0'.encode('utf-8')})
->>> async_response.__dict__
-{'command': <routeros_api.sentence.CommandSentence object at 0x73a0f2b3eba0>, 'done_message': {'ret': b'hello'}, 'done': True, 'error': None}
->>> async_response.done_message['ret']
-b'hello'
+>>> response = api.get_resource('/system/script').call('run', {'number': '0'})
+>>> response.done
+True
+>>> response.done_message['ret']
+'hello'
 ```
 
 ### Other Example:
 
 ```python
 list_address =  api.get_resource('/ip/firewall/address-list')
-list_address.add(address="192.168.0.1",comment="P1",list="10M")
-
-list_address.get(comment="P1")
-
-list_address.remove(id="*7")
+list_address.add(address='192.168.0.1', comment='P1', list='10M')
+response = list_address.get(comment='P1')
+list_address.remove(id=response[0]['id'])
 ```
