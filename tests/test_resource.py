@@ -9,6 +9,7 @@ from routeros_api import api_structure as structure
 from routeros_api import resource
 from routeros_api.api_communicator import base
 
+STRING_STRUCTURE = {'string': structure.StringField()}
 BYTES_STRUCTURE = {'bytes': structure.BytesField()}
 BOOLEAN_STRUCTURE = {'boolean': structure.BooleanField()}
 
@@ -31,6 +32,40 @@ class TestTypedResource(unittest.TestCase):
         communicator.call.assert_called_with(
             '/unknown/', 'set', arguments={'x': b'y'}, queries={},
             additional_queries=())
+
+    def test_string_resource_get(self):
+        communicator = mock.Mock()
+        response = base.AsynchronousResponse([{'string': b's'}], command='')
+        communicator.call.return_value.get.return_value = response
+        some_resource = resource.RouterOsResource(communicator, '/string', STRING_STRUCTURE)
+        result = some_resource.get()
+        self.assertEqual(result, [{'string': 's'}])
+
+    def test_string_resource_get_non_utf8_characters(self):
+        communicator = mock.Mock()
+        response = base.AsynchronousResponse([{'string': b'test-\xb9\xe6\xbf-test'}], command='')
+        communicator.call.return_value.get.return_value = response
+        some_resource = resource.RouterOsResource(communicator, '/string', STRING_STRUCTURE)
+        result = some_resource.get()
+        self.assertEqual(result, [{'string': 'test-\\xb9\\xe6\\xbf-test'}])
+
+    def test_string_resource_get_windows_1250_characters(self):
+        string_structure = {'string': structure.StringField(encoding='windows-1250')}
+        communicator = mock.Mock()
+        response = base.AsynchronousResponse([{'string': b'test-\xb9\xe6\xbf\x8f-test'}], command='')
+        communicator.call.return_value.get.return_value = response
+        some_resource = resource.RouterOsResource(communicator, '/string', string_structure)
+        result = some_resource.get()
+        self.assertEqual(result, [{'string': 'test-ąćżŹ-test'}])
+
+    def test_string_resource_get_latin_1_characters(self):
+        string_structure = {'string': structure.StringField(encoding='latin-1')}
+        communicator = mock.Mock()
+        response = base.AsynchronousResponse([{'string': b'hap ac\xb2'}], command='')
+        communicator.call.return_value.get.return_value = response
+        some_resource = resource.RouterOsResource(communicator, '/string', string_structure)
+        result = some_resource.get()
+        self.assertEqual(result, [{'string': 'hap ac²'}])
 
     def test_bytes_resource_get(self):
         communicator = mock.Mock()

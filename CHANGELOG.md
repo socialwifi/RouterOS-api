@@ -4,13 +4,13 @@ Changelog for RouterOS-api
 ## 0.19.1 (unreleased)
 ----------------------
 
-- Nothing changed yet.
+- Fix decoding non utf-8 characters. Allow setting fallback encoding.
 
 
 ## 0.19.0 (2025-03-06)
 ----------------------
 
-- Add support for `!empty` reply word ([#103](https://github.com/socialwifi/RouterOS-api/pull/103))
+- Add support for `!empty` reply word ([#103](https://github.com/socialwifi/RouterOS-api/pull/103)).
 
 
 ## 0.18.1 (2024-05-28)

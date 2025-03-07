@@ -24,11 +24,14 @@ class Field(object):
 
 
 class StringField(Field):
+    def __init__(self, encoding='utf-8'):
+        self.encoding = encoding
+
     def get_mikrotik_value(self, string):
-        return string.encode()
+        return string.encode(encoding=self.encoding, errors='backslashreplace')
 
     def get_python_value(self, bytes):
-        return bytes.decode()
+        return bytes.decode(encoding=self.encoding, errors='backslashreplace')
 
 
 class BytesField(Field):
