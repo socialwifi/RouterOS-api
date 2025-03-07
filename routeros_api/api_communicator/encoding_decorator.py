@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class EncodingApiCommunicator(object):
     def __init__(self, inner):
         self.inner = inner
@@ -16,6 +21,11 @@ class EncodingApiCommunicator(object):
 
     def transform_item(self, item):
         key, value = item
+        if not isinstance(value, bytes):
+            logger.warning(
+                'Non-bytes value passed as item value ({}). You should probably use api.get_resource() instead of '
+                'api.get_binary_resource() or encode arguments yourself.'.format(value))
+            value = value.encode()
         return (key.encode(), value)
 
     def decorate_promise(self, promise):
