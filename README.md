@@ -133,8 +133,16 @@ api.get_binary_resource('/').call('<resource>', { <dict of params> })
 #### Examples
 
 ```python
-api.get_resource('/').call('tool/fetch', {'url': 'https://dummy.url'})
-api.get_resource('/').call('ping', {'address': '192.168.56.1', 'count': '4'})
+>>> api.get_resource('/tool').call('fetch', {'url': 'http://example.com', 'dst-path': 'output.html'})
+[{'status': 'connecting', '.section': '0'}, {'status': 'finished', 'downloaded': '1', 'total': '1', 'duration': '1s', '.section': '1'}]api.get_resource('/').call('ping', {'address': '192.168.56.1', 'count': '4'})
+
+>>> api.get_resource('/').call('ping', {'address': '8.8.8.8', 'count': '4'})
+[
+ {'seq': '0', 'host': '8.8.8.8', 'size': '56', 'ttl': '58', 'time': '14ms612us', 'sent': '1', 'received': '1', 'packet-loss': '0', 'min-rtt': '14ms612us', 'avg-rtt': '14ms612us', 'max-rtt': '14ms612us'}, 
+ {'seq': '1', 'host': '8.8.8.8', 'size': '56', 'ttl': '58', 'time': '22ms237us', 'sent': '2', 'received': '2', 'packet-loss': '0', 'min-rtt': '14ms612us', 'avg-rtt': '18ms424us', 'max-rtt': '22ms237us'}, 
+ {'seq': '2', 'host': '8.8.8.8', 'size': '56', 'ttl': '58', 'time': '13ms823us', 'sent': '3', 'received': '3', 'packet-loss': '0', 'min-rtt': '13ms823us', 'avg-rtt': '16ms890us', 'max-rtt': '22ms237us'}, 
+ {'seq': '3', 'host': '8.8.8.8', 'size': '56', 'ttl': '58', 'time': '8ms614us', 'sent': '4', 'received': '4', 'packet-loss': '0', 'min-rtt': '8ms614us', 'avg-rtt': '14ms821us', 'max-rtt': '22ms237us'}
+]
 ```
 
 ### Fetch List/Resource
@@ -211,6 +219,46 @@ list_queues.remove(id='*2')
 connection.disconnect()
 ```
 
+### Return results and count of results
+
+Let's take DHCP leases as an example.
+
+CLI: `/ip/dhcp-server/lease/print`
+
+```python
+api.get_resource('/ip/dhcp-server/lease').get()
+```
+
+Now, let's use `count-only`.
+
+CLI: `/ip/dhcp-server/lease/print count-only` (returns 13)
+
+```python
+>>> api.get_resource('/ip/dhcp-server/lease').call('print', {'count-only': ''}).done_message
+
+{'ret': '13'}
+```
+
+Now, let's use `count-only` and `where`.
+
+CLI: `/ip/dhcp-server/lease/print count-only where server=developers` (returns 4)
+
+```python
+>>> api.get_resource('/ip/dhcp-server/lease').call('print', {'count-only': ''}, {'server': 'developers'}).done_message
+
+{'ret': '4'}
+```
+
+Now, let's use `count-only` and `where` with boolean value.
+
+CLI: `/ip/route/pri count-only where static` (returns 1)
+
+```python
+>>> api.get_resource('/ip/route').call('print', {'count-only': ''}, {'static': 'yes'}).done_message
+
+{'ret': '1'}
+```
+
 ### Run script and get output
 
 The example script only prints "hello". Here's a simplified example of how 
@@ -226,10 +274,37 @@ True
 'hello'
 ```
 
-### Other Example:
+### Run monitor and get output
+
+CLI command: `/interface/ethernet/poe/monitor numbers=0 once`
+
+```
+>>> response = api.get_resource('/interface/ether/poe').call('monitor', {'numbers': '0', 'once': ''})
+>>> response
+[{'name': 'ether10', 'poe-out': 'auto-on', 'poe-out-status': 'waiting-for-load'}]
+```
+
+### Set value using numbers
+
+CLI command: `/interface/ethernet/poe set poe-out=off 0`
 
 ```python
-list_address =  api.get_resource('/ip/firewall/address-list')
+api.get_resource('/interface/ethernet/poe').call('set', {'poe-out': 'off', 'numbers': '0'}
+```
+
+### Set value using id
+
+```python
+>> api.get_resource('/interface/ethernet/poe').call('print')
+[{'id': '*B', 'name': 'ether10', 'poe-out': 'off', 'poe-priority': '10', 'poe-lldp-enabled': 'false', 'power-cycle-ping-enabled': 'false', 'power-cycle-interval': 'none'}]
+
+>> api.get_resource('/interface/ethernet/poe').call('set', {'poe-out': 'off', '.id': "*B"})
+```
+
+### Add and remove item
+
+```python
+list_address = api.get_resource('/ip/firewall/address-list')
 list_address.add(address='192.168.0.1', comment='P1', list='10M')
 response = list_address.get(comment='P1')
 list_address.remove(id=response[0]['id'])
