@@ -1,6 +1,6 @@
 # RouterOS-api
 
-[![Build Status](https://travis-ci.org/socialwifi/RouterOS-api.svg?branch=master)](https://travis-ci.org/socialwifi/RouterOS-api)
+[![Build Status](https://github.com/socialwifi/RouterOS-api/actions/workflows/python.yml/badge.svg)](https://github.com/socialwifi/RouterOS-api/actions/workflows/python.yml)
 [![Latest Version](https://img.shields.io/pypi/v/RouterOS-api.svg)](https://pypi.python.org/pypi/RouterOS-api/)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/RouterOS-api.svg)](https://pypi.python.org/pypi/RouterOS-api/)
 [![Wheel Status](https://img.shields.io/pypi/wheel/RouterOS-api.svg)](https://pypi.python.org/pypi/RouterOS-api/)
@@ -8,7 +8,9 @@
 
 Python API to RouterBoard devices produced by [MikroTik](https://mikrotik.com/) written by [Social WiFi](https://socialwifi.com).
 
-[![Social WiFi logo](https://static.socialwifi.com/cloud/1/images/logo.svg)](https://socialwifi.com)
+<a href="https://socialwifi.com">
+<img src="https://socialwifi.com/media/static/logo-gradient.svg" width="200" title="Social WiFi logo" alt="Social WiFi logo"/>
+</a>
 
 ## Usage
 
@@ -134,7 +136,7 @@ api.get_binary_resource('/').call('<resource>', { <dict of params> })
 
 ```python
 >>> api.get_resource('/tool').call('fetch', {'url': 'http://example.com', 'dst-path': 'output.html'})
-[{'status': 'connecting', '.section': '0'}, {'status': 'finished', 'downloaded': '1', 'total': '1', 'duration': '1s', '.section': '1'}]api.get_resource('/').call('ping', {'address': '192.168.56.1', 'count': '4'})
+[{'status': 'connecting', '.section': '0'}, {'status': 'finished', 'downloaded': '1', 'total': '1', 'duration': '1s', '.section': '1'}]
 
 >>> api.get_resource('/').call('ping', {'address': '8.8.8.8', 'count': '4'})
 [
@@ -264,7 +266,7 @@ CLI: `/ip/route/pri count-only where static` (returns 1)
 The example script only prints "hello". Here's a simplified example of how 
 to run it and get the output:
 
-```
+```python
 >>> api.get_resource('/system/script').get()[0]['source']
 '/put "hello"'
 >>> response = api.get_resource('/system/script').call('run', {'number': '0'})
@@ -278,7 +280,7 @@ True
 
 CLI command: `/interface/ethernet/poe/monitor numbers=0 once`
 
-```
+```python
 >>> response = api.get_resource('/interface/ether/poe').call('monitor', {'numbers': '0', 'once': ''})
 >>> response
 [{'name': 'ether10', 'poe-out': 'auto-on', 'poe-out-status': 'waiting-for-load'}]
