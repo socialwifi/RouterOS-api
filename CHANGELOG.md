@@ -1,7 +1,7 @@
 Changelog for RouterOS-api
 ==========================
 
-## 0.21.0 (unreleased)
+## 0.21.0 (2025-03-07)
 ----------------------
 
 - Allow query without value ([#107](https://github.com/socialwifi/RouterOS-api/pull/107)).
