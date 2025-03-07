@@ -33,6 +33,15 @@ class TestTypedResource(unittest.TestCase):
             '/unknown/', 'set', arguments={'x': b'y'}, queries={},
             additional_queries=())
 
+    def test_unknown_resource_set_with_no_value(self):
+        communicator = mock.Mock()
+        some_resource = resource.RouterOsResource(communicator, '/unknown',
+                                                  structure.default_structure)
+        some_resource.set(x=None)
+        communicator.call.assert_called_with(
+            '/unknown/', 'set', arguments={'x': None}, queries={},
+            additional_queries=())
+
     def test_string_resource_get(self):
         communicator = mock.Mock()
         response = base.AsynchronousResponse([{'string': b's'}], command='')

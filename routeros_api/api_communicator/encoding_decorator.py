@@ -21,7 +21,7 @@ class EncodingApiCommunicator(object):
 
     def transform_item(self, item):
         key, value = item
-        if not isinstance(value, bytes):
+        if value is not None and not isinstance(value, bytes):
             logger.warning(
                 'Non-bytes value passed as item value ({}). You should probably use api.get_resource() instead of '
                 'api.get_binary_resource() or encode arguments yourself.'.format(value))

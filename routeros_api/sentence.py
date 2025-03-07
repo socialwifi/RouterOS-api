@@ -54,7 +54,10 @@ class CommandSentence(object):
     def get_api_format(self):
         formated = [self.path + self.command]
         for key, value in self.attributes.items():
-            formated.append(b'=' + key + b'=' + value)
+            formatted_attribute = b'=' + key
+            if value:
+                formatted_attribute += b'=' + value
+            formated.append(formatted_attribute)
         for _query in self.queries:
             formated.extend(_query.get_api_format())
         if self.tag is not None:
