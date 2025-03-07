@@ -25,9 +25,7 @@ class RouterOsApiPool(object):
         self.host = host
         self.username = username
         self.password = password
-
         self.plaintext_login = plaintext_login
-
         self.ssl_context = ssl_context
         # Use SSL? Ignored when using a context, so we will set it for simple reference when port-switching:
         if ssl_context is not None:
@@ -83,12 +81,12 @@ class RouterOsApi(object):
         self.communicator = communicator
 
     def login(self, login, password, plaintext_login):
+        if isinstance(login, str):
+            login = login.encode()
+        if isinstance(password, str):
+            password = password.encode()
         response = None
         if plaintext_login:
-            if isinstance(login, str):
-                login = login.encode()
-            if isinstance(password, str):
-                password = password.encode()
             response = self.get_binary_resource('/').call('login', {'name': login, 'password': password})
         else:
             response = self.get_binary_resource('/').call('login')
@@ -96,11 +94,11 @@ class RouterOsApi(object):
             token = binascii.unhexlify(response.done_message['ret'])
             hasher = hashlib.md5()
             hasher.update(b'\x00')
-            hasher.update(password.encode())
+            hasher.update(password)
             hasher.update(token)
             hashed = b'00' + hasher.hexdigest().encode('ascii')
             self.get_binary_resource('/').call(
-                'login', {'name': login.encode(), 'response': hashed})
+                'login', {'name': login, 'response': hashed})
 
     def get_resource(self, path, structure=None):
         if structure is None:
