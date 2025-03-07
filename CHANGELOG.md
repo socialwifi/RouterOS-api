@@ -1,10 +1,11 @@
 Changelog for RouterOS-api
 ==========================
 
-## 0.19.1 (unreleased)
+## 0.20.0 (unreleased)
 ----------------------
 
-- Fix decoding non utf-8 characters. Allow setting fallback encoding.
+- Fix decoding non utf-8 characters. Allow setting fallback encoding ([#104](https://github.com/socialwifi/RouterOS-api/pull/104)).
+- Fix `TypeError: can't concat str to bytes` ([#105](https://github.com/socialwifi/RouterOS-api/pull/105)).
 
 
 ## 0.19.0 (2025-03-06)
